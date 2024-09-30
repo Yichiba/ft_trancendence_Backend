@@ -13,6 +13,12 @@ https://docs.djangoproject.com/en/4.2/ref/settings/
 from pathlib import Path
 
 
+UID = 'u-s4t2ud-bc003f1775049ebfca3f8234618b880c4312974bb58efd39804add946dd1214e'
+SECRET = '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'
+REDIRECT_URI = 'http://127.0.0.1:8000/login/42/callback/'
+
+JWT_SECRET_KEY="yichiba94@"
+
 AUTH_USER_MODEL = 'accounts.CustomUser'
 
 
@@ -42,7 +48,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'rest_framework',
-     'rest_framework_simplejwt',
+    'rest_framework_simplejwt',
     'accounts',
 ]
 
