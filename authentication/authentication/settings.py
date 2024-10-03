@@ -11,6 +11,7 @@ https://docs.djangoproject.com/en/4.2/ref/settings/
 """
 
 from pathlib import Path
+from accounts import middleware
 
 
 UID = 'u-s4t2ud-bc003f1775049ebfca3f8234618b880c4312974bb58efd39804add946dd1214e'
@@ -68,6 +69,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'accounts.middleware.JWTAuthenticationMiddleware',
 ]
 
 ROOT_URLCONF = 'authentication.urls'

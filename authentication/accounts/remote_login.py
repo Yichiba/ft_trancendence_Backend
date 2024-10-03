@@ -3,6 +3,7 @@ from .models import CustomUser
 from django.contrib.auth import authenticate
 from . import serializers, views 
 from django.conf import settings
+from rest_framework import status
 from rest_framework.response import Response
 from django.shortcuts import redirect
 from django.http import HttpResponse
@@ -10,6 +11,7 @@ from django.utils.crypto import get_random_string
 from .serializers import RegisterSerializer  # Ensure you import your serializer
 import datetime
 import jwt
+
 
 JWT_SECRET_KEY="yichiba94@"
 
@@ -19,14 +21,14 @@ def generate_jwt(user):
         "sub": user.id,
         "username":user.username,
         "email":user.email,
-        "iat":datetime.datetime.now().timestamp()
+        "iat":datetime.datetime.now().timestamp(),
+        "exp":(datetime.datetime.now() + datetime.timedelta(hours= 3)).timestamp()
     }
     token = jwt.encode(payloads, JWT_SECRET_KEY, 'HS256')
+    
     return token
     
-    
-    
-    
+
 def remote_login(user, request):
     print("from remote_login Fun")
     random_pasword = get_random_string(12)
@@ -43,16 +45,19 @@ def remote_login(user, request):
     if existing_user:
         authenticated_user = authenticate(username=existing_user.username, password=existing_user.password)
         if authenticated_user:
-            token = generate_jwt(user=authenticated_user)
-            return Response({'message':'Logged in successfully!','access': token }, status=status.HTTP_200_OK)
+            token = generate_jwt(user=authenticated_user)        
+            response = Response({'message':'Logged in successfully!' }, status=status.HTTP_200_OK)
+            response.set_cookie("jwt",token,10800,httponly=True)
+            return response
 
     else:
         serializer = RegisterSerializer(data=validated_data)
-        
         if serializer.is_valid():
             new_user = serializer.save()
             token = generate_jwt(user=new_user)
-            return Response({'message':'Logged in successfully!','access': token }, status=status.HTTP_200_OK)
+            response = Response({'message':'Registred And logged in successfully!' }, status=status.HTTP_200_OK)
+            response.set_cookie("jwt",token,10800,httponly=True)
+            return response
 
         else:
             return None
