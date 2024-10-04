@@ -8,7 +8,7 @@ from rest_framework.response import Response
 from django.shortcuts import redirect
 from django.http import HttpResponse
 from django.utils.crypto import get_random_string
-from .serializers import RegisterSerializer  # Ensure you import your serializer
+from .serializers import RegisterSerializer
 import datetime
 import jwt
 
@@ -47,7 +47,7 @@ def remote_login(user, request):
         if authenticated_user:
             token = generate_jwt(user=authenticated_user)        
             response = Response({'message':'Logged in successfully!' }, status=status.HTTP_200_OK)
-            response.set_cookie("jwt",token,10800,httponly=True)
+            response.set_cookie("jwt",token,10800)
             return response
 
     else:
@@ -56,7 +56,7 @@ def remote_login(user, request):
             new_user = serializer.save()
             token = generate_jwt(user=new_user)
             response = Response({'message':'Registred And logged in successfully!' }, status=status.HTTP_200_OK)
-            response.set_cookie("jwt",token,10800,httponly=True)
+            response.set_cookie("jwt",token,10800)
             return response
 
         else:

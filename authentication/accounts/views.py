@@ -28,7 +28,7 @@ class login_view(APIView):
             return response
         else:
             return Response({'error': 'Invalid credentials'},status=status.HTTP_401_UNAUTHORIZED)
-        
+
 
 class logout_view(APIView):
     permission_classes = [IsAuthenticated]
