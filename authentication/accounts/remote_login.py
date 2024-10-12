@@ -76,6 +76,8 @@ def fetch_user_data(access_token):
 
 def callback_with_42(request):
     code = request.GET.get('code')
+    print("callback func")
+    print("code : ",code)
     if code:
         token_url = 'https://api.intra.42.fr/v2/oauth/token'
         payload = {
@@ -86,6 +88,7 @@ def callback_with_42(request):
             'code': code
         }
         response = requests.post(token_url, data=payload)
+        print("response : ",response)
         if response.status_code == 200:
             access_token = response.json().get('access_token')
             user_data = fetch_user_data(access_token)

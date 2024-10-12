@@ -1,5 +1,6 @@
 import requests
 from . import serializers, remote_login
+from .middleware import requires_authentication, not_authenticated
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
@@ -7,15 +8,17 @@ from django.contrib.auth import authenticate, login, logout
 from .serializers import RegisterSerializer
 from rest_framework.permissions import IsAuthenticated
 from django.conf import settings
-from django.shortcuts import redirect
+from django.shortcuts import redirect, render
 import urllib.parse
 from django.http import HttpResponse
 
 
 
 
-
 class login_view(APIView):
+    def get(self,request):
+        response = Response({'message':'loggin page !' }, status=status.HTTP_200_OK)
+        return response
     def post(self,request):
         print("from loginView Fun")
         username = request.data.get('username')
@@ -31,24 +34,35 @@ class login_view(APIView):
 
 
 class logout_view(APIView):
-    permission_classes = [IsAuthenticated]
+    @requires_authentication
     def post(self, request):
-        logout(request)
-        return Response({'message': 'Logged out successfully!'},status=status.HTTP_200_OK)
+        print(" request fro logpiut ",request.user)
+        logout(request=request)
+        response = Response({'message': 'Logged out successfully!'},status=status.HTTP_200_OK)
+        response.delete_cookie('jwt')
+        return response
     
 
 
 class RegisterView(APIView):
+    @not_authenticated
+    def get(self, request):
+        return render(request, 'register.html')
+    @not_authenticated
     def post(self, request):
         print("from reister_view Fun")
         serializer = RegisterSerializer(data=request.data)
         if serializer.is_valid():
             user = serializer.save()
             token = remote_login.generate_jwt(user=user)
-            return Response({"message": "User registered successfully!", "acess":token}, status=status.HTTP_201_CREATED)
+            response = Response({'message':' signed and Logged in successfully!' }, status=status.HTTP_200_OK)
+            response.set_cookie("jwt",token,10800)
+            return response
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
+
 class home_view(APIView):
+    @requires_authentication
     def get(self,request):
         return Response("Home page",status=status.HTTP_200_OK)
 
@@ -69,3 +83,21 @@ def login_with_42(request):
     redirect_url = f"{auth_url}?{string_params}"
     return redirect(redirect_url)
 
+
+class profile(APIView):
+    def get(self,request):
+        pass
+
+
+
+
+
+
+class users(APIView):
+    @requires_authentication
+    def get(self,request):
+        response = Response ({
+           "user_id": request.user.id,
+           "email" :request.user.email
+        })
+        return response

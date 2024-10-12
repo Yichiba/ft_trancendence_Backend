@@ -1,0 +1,31 @@
+{
+  "username": "PingMaster",
+  "profile_picture": "/images/pingmaster_avatar.png",
+  "bio": "Ping pong enthusiast and competitive player.",
+  "location": "Casablanca, Morocco",
+  "rank": 150,
+  "wins": 45,
+  "losses": 15,
+  "win_percentage": 75,
+  "longest_winning_streak": 10,
+  "recent_matches": [
+    {"opponent": "SpinKing", "date": "2024-10-01", "result": "Win", "score": "11-8, 11-6"},
+    {"opponent": "SmashQueen", "date": "2024-09-30", "result": "Loss", "score": "8-11, 9-11"}
+  ],
+  "achievements": [
+    {"title": "10 Matches Won", "date": "2024-09-15"},
+    {"title": "Tournament Finalist", "date": "2024-08-20"}
+  ],
+  "average_game_duration": "15 minutes",
+  "top_score": 11,
+  "fastest_win": "5 minutes",
+  "favorite_shot_type": "Forehand Smash",
+  "match_history": [
+    {"opponent": "SpinKing", "result": "Win", "score": "11-8, 11-6"},
+    {"opponent": "SmashQueen", "result": "Loss", "score": "8-11, 9-11"}
+  ],
+  "friends": ["SpinKing", "SmashQueen"],
+  "tournaments": [
+    {"name": "Fall Championship", "status": "Upcoming", "date": "2024-10-20"}
+  ]
+}

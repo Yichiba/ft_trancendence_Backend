@@ -1,20 +1,58 @@
 import requests
 from datetime import datetime
 from django.utils.deprecation import MiddlewareMixin
-# from django.http import HttpResponse
 import jwt
+from functools import wraps
 from rest_framework.response import Response
 from rest_framework import status
-
-
+from django.shortcuts import redirect
+from django.contrib import messages
 
 
 JWT_SECRET_KEY = "yichiba94@"
+
+from functools import wraps
+from rest_framework.response import Response
+
+
+def requires_authentication(view_func):
+    @wraps(view_func)  # Preserves function metadata
+    def wrapper(request, *args, **kwargs):
+        from django.contrib.auth.models import AnonymousUser
+        from .models import CustomUser
+        request = args[0]
+        if request.is_authenticated :
+            user = CustomUser.objects.get(id=request.user_data['sub'])
+            request.user = user
+            print("request is authenticated ")
+            return view_func(request, *args, **kwargs)
+        elif request.user_data:
+            user = CustomUser.objects.get(id=request.user_data['sub'])
+            request.user = user
+            request.is_authenticated = True
+            return view_func(request, *args, **kwargs)
+        return Response({'error': 'Authentication required'}, status=401)
+    return wrapper
+
+
+
+def not_authenticated(view_func):
+    @wraps(view_func)
+    def wrapper(request, *args, **kwargs):
+        request = args[0]
+        if request.is_authenticated :
+            messages.info(request,'you are already logged in !!!')
+            return redirect("home")
+        return view_func(request, *args, **kwargs)
+    return wrapper
+
+
 
 def JWTCheck(token):
     try:
         # Decode the token and return the payload if valid
         payload = jwt.decode(token, JWT_SECRET_KEY, algorithms=['HS256']) 
+        # print("payload ", payload)
         return payload
     
     except jwt.ExpiredSignatureError:
@@ -27,20 +65,18 @@ def JWTCheck(token):
 
 
 class JWTAuthenticationMiddleware(MiddlewareMixin):
-    # protected_view[]= {}
     def process_request(self, request):
-        # Check if the JWT cookie exists
+        from .models import CustomUser
+        print("Processing request in middleware...")
         if "jwt" in request.COOKIES:
-            # Validate and decode the token
             payload = JWTCheck(request.COOKIES["jwt"])
-            
             if payload:
                 request.user_data = payload
+                request.is_authenticated = True
             else:
-                # If the token is invalid or expired, you can either:
-                # - Allow the request to proceed (for public views)
-                # - Return a 401 Unauthorized response (for protected views)
-                pass  # You can handle this based on your app's needs
+                request.user_data = None
+                request.is_authenticated = False
         else:
-            # Handle missing JWT cookie here
-            pass
+            request.user_data = None
+            request.is_authenticated = False
+    

@@ -25,4 +25,6 @@ urlpatterns = [
     path('register/', views.RegisterView.as_view(),name = 'register'),
     path('login/42/', views.login_with_42, name='login_with_42'),
     path('login/42/callback/', remote_login.callback_with_42, name='callback_with_42'),
+    path('profile/',views.profile.as_view(),name = 'profile'),
+    path('users/',views.users.as_view(),name='users')
 ]

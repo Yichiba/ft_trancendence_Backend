@@ -24,11 +24,14 @@ class RegisterSerializer(serializers.ModelSerializer):
             first_name=validated_data['first_name'],
             last_name=validated_data['last_name'],
             email=validated_data['email'],
+            # img = validated_data['img']
         )
-        
-        if not validated_data.get('42_login'):
-            user.set_password(validated_data['password'])  # Hash the password
-        else:
-            user.set_password(validated_data['password'])  # Hash the random password
+        user.set_password(validated_data['password'])  # Hash the password
         user.save()
         return user
+    def get(self, id):
+        print("id = ",id)
+        user = CustomUser.objects.get(id=id)
+        return user
+    
+    
