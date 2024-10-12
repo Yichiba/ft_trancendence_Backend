@@ -77,6 +77,7 @@ class JWTAuthenticationMiddleware(MiddlewareMixin):
                 request.user_data = None
                 request.is_authenticated = False
         else:
+            print("No JWT in cookies.")
             request.user_data = None
             request.is_authenticated = False
     

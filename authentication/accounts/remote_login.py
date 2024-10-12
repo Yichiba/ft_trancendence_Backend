@@ -44,19 +44,24 @@ def remote_login(user, request):
     existing_user = CustomUser.objects.filter(email=validated_data['email']).first()
     if existing_user:
         authenticated_user = authenticate(username=existing_user.username, password=existing_user.password)
+        print("response7788888888888888888888887777 : ",authenticated_user)
         if authenticated_user:
             token = generate_jwt(user=authenticated_user)        
             response = Response({'message':'Logged in successfully!' }, status=status.HTTP_200_OK)
+            response = Response({'message':'Logged in successfully!' }, status=status.HTTP_200_OK)
             response.set_cookie("jwt",token,10800)
+            print("response77777777777777777777777777777 : ",response)
             return response
 
     else:
         serializer = RegisterSerializer(data=validated_data)
+        print("response7999999999999999999999999999777 : ",serializer)
         if serializer.is_valid():
             new_user = serializer.save()
             token = generate_jwt(user=new_user)
             response = Response({'message':'Registred And logged in successfully!' }, status=status.HTTP_200_OK)
             response.set_cookie("jwt",token,10800)
+            print("response77777777jjjj777777777777777777777 : ",response)
             return response
 
         else:
@@ -92,7 +97,9 @@ def callback_with_42(request):
         if response.status_code == 200:
             access_token = response.json().get('access_token')
             user_data = fetch_user_data(access_token)
-            user_data = remote_login(user_data,request)
+            response  = Response() 
+            response = remote_login(user_data,request)
+            print("user_data000000000000000000000000000000 : ",response)
             return HttpResponse(f"Access token received: {access_token}")
         else:
             return HttpResponse("Failed to obtain access token.")

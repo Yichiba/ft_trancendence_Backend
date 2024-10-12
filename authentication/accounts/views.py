@@ -95,7 +95,9 @@ class profile(APIView):
 
 class users(APIView):
     @requires_authentication
-    def get(self,request):
+    def get(request,username):
+        print("from users Fun")
+        print("username",username)
         response = Response ({
            "user_id": request.user.id,
            "email" :request.user.email

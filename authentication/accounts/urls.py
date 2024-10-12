@@ -26,5 +26,5 @@ urlpatterns = [
     path('login/42/', views.login_with_42, name='login_with_42'),
     path('login/42/callback/', remote_login.callback_with_42, name='callback_with_42'),
     path('profile/',views.profile.as_view(),name = 'profile'),
-    path('users/',views.users.as_view(),name='users')
+    path('users/<str:username>',views.users.as_view(),name='users_profile')
 ]
