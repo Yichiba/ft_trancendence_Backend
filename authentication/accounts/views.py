@@ -1,5 +1,5 @@
 import requests
-from . import serializers, remote_login
+from . import serializers, remote_login, models
 from .middleware import requires_authentication, not_authenticated
 from rest_framework.views import APIView
 from rest_framework.response import Response
@@ -45,10 +45,10 @@ class logout_view(APIView):
 
 
 class RegisterView(APIView):
-    @not_authenticated
+    # @not_authenticated
     def get(self, request):
         return render(request, 'register.html')
-    @not_authenticated
+    # @not_authenticated
     def post(self, request):
         print("from reister_view Fun")
         serializer = RegisterSerializer(data=request.data)
@@ -90,16 +90,24 @@ class profile(APIView):
 
 
 
-
-
-
 class users(APIView):
     @requires_authentication
-    def get(request,username):
-        print("from users Fun")
-        print("username",username)
-        response = Response ({
-           "user_id": request.user.id,
-           "email" :request.user.email
-        })
-        return response
+    def get(self,request,username):
+        user = models.CustomUser.objects.get(username=username)
+        img_url = user.profile_picture.url
+        print("img url :",img_url)
+        
+        if user:
+            response = Response ({
+            "user_id": user.id,
+            "email" :user.email,
+            "lastname":user.last_name ,
+            "profile_picture":img_url
+            })
+            return response
+        return Response({'User %s  Not found !! ',username},status=401)
+    def post(self,request,username):
+        if request.user.username == username:
+            pass
+        pass
+        

@@ -22,6 +22,7 @@ def requires_authentication(view_func):
         from .models import CustomUser
         request = args[0]
         if request.is_authenticated :
+            print("user id :" ,request.user_data['sub'])
             user = CustomUser.objects.get(id=request.user_data['sub'])
             request.user = user
             print("request is authenticated ")

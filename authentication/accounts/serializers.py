@@ -24,13 +24,13 @@ class RegisterSerializer(serializers.ModelSerializer):
             first_name=validated_data['first_name'],
             last_name=validated_data['last_name'],
             email=validated_data['email'],
-            # img = validated_data['img']
+            profile_picture= validated_data['profile_picture']
         )
         user.set_password(validated_data['password'])  # Hash the password
         user.save()
         return user
     def get(self, id):
-        print("id = ",id)
+        print("id lllll= ",id)
         user = CustomUser.objects.get(id=id)
         return user
     

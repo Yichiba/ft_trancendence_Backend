@@ -7,7 +7,7 @@ class CustomUser(AbstractUser):
     first_name = models.CharField(max_length = 50)
     last_name = models.CharField(max_length = 50)
     email = models.EmailField(unique=True)
-    img = models.ImageField("media/",default="media/defaults.jpeg")
+    profile_picture = models.ImageField(upload_to="media/",default="media/defaults.jpeg",)
 
     def __str__(self):
         return self.username

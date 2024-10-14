@@ -11,6 +11,9 @@ from django.utils.crypto import get_random_string
 from .serializers import RegisterSerializer
 import datetime
 import jwt
+from rest_framework.views import APIView
+from django.core.files.base import ContentFile
+
 
 
 JWT_SECRET_KEY="yichiba94@"
@@ -28,44 +31,48 @@ def generate_jwt(user):
     
     return token
     
+    
 
-def remote_login(user, request):
+    
+def get_profile_pict(img_url):
+    response = requests.get(url=img_url)
+    if response.status_code == 200:
+        return ContentFile(response.content)
+    return None
+    
+def save_profile_picture(user, image_url):
+    print("urll :",image_url)
+    image_file = get_profile_pict(image_url)
+    if image_file:
+        file_name = f'{user.username}_profile.jpg'  # Give the file a name
+        user.profile_picture.save(file_name, image_file)
+        user.save()
+    # else:
+        
+
+    
+
+def remote_login( user_data, request):
     print("from remote_login Fun")
     random_pasword = get_random_string(12)
     validated_data = {
         "42_login":True,
-        "username": user['login'],
-        "first_name": user['first_name'],
-        "last_name": user['last_name'],
-        "email": user['email'],
+        "username": user_data['login'],
+        "first_name": user_data['first_name'],
+        "last_name": user_data['last_name'],
+        "email": user_data['email'],
         "password": random_pasword,
         "password_confirm":random_pasword
     }
-    existing_user = CustomUser.objects.filter(email=validated_data['email']).first()
-    if existing_user:
-        authenticated_user = authenticate(username=existing_user.username, password=existing_user.password)
-        print("response7788888888888888888888887777 : ",authenticated_user)
-        if authenticated_user:
-            token = generate_jwt(user=authenticated_user)        
-            response = Response({'message':'Logged in successfully!' }, status=status.HTTP_200_OK)
-            response = Response({'message':'Logged in successfully!' }, status=status.HTTP_200_OK)
-            response.set_cookie("jwt",token,10800)
-            print("response77777777777777777777777777777 : ",response)
-            return response
-
-    else:
+    try:
+        existing_user = CustomUser.objects.get(email=validated_data['email'])
+        return existing_user
+    except CustomUser.DoesNotExist:
         serializer = RegisterSerializer(data=validated_data)
-        print("response7999999999999999999999999999777 : ",serializer)
         if serializer.is_valid():
             new_user = serializer.save()
-            token = generate_jwt(user=new_user)
-            response = Response({'message':'Registred And logged in successfully!' }, status=status.HTTP_200_OK)
-            response.set_cookie("jwt",token,10800)
-            print("response77777777jjjj777777777777777777777 : ",response)
-            return response
-
-        else:
-            return None
+            save_profile_picture(new_user,user_data['image']['versions']['small'])
+            return new_user
     return None
 
 def fetch_user_data(access_token):
@@ -79,28 +86,34 @@ def fetch_user_data(access_token):
     return None  
 
 
-def callback_with_42(request):
-    code = request.GET.get('code')
-    print("callback func")
-    print("code : ",code)
-    if code:
-        token_url = 'https://api.intra.42.fr/v2/oauth/token'
-        payload = {
-            'grant_type': 'authorization_code',
-            'client_id': settings.UID,
-            'client_secret': settings.SECRET,
-            'redirect_uri': settings.REDIRECT_URI,
-            'code': code
-        }
-        response = requests.post(token_url, data=payload)
-        print("response : ",response)
-        if response.status_code == 200:
-            access_token = response.json().get('access_token')
-            user_data = fetch_user_data(access_token)
-            response  = Response() 
-            response = remote_login(user_data,request)
-            print("user_data000000000000000000000000000000 : ",response)
-            return HttpResponse(f"Access token received: {access_token}")
-        else:
-            return HttpResponse("Failed to obtain access token.")
-    return HttpResponse("No authorization code found.")
+class  callback_with_42(APIView):
+    
+    def get(self,request):
+        code = request.GET.get('code')
+        print("callback func")
+        print("code : ",code)
+        if code:
+            token_url = 'https://api.intra.42.fr/v2/oauth/token'
+            payload = {
+                'grant_type': 'authorization_code',
+                'client_id': settings.UID,
+                'client_secret': settings.SECRET,
+                'redirect_uri': settings.REDIRECT_URI,
+                'code': code
+            }
+            response = requests.post(token_url, data=payload)
+            if response.status_code == 200:
+                access_token = response.json().get('access_token')
+                user_data = fetch_user_data(access_token)
+                user = remote_login(user_data,request)
+                if user :
+                    token = generate_jwt(user=user)        
+                    response = Response({'message':'Logged in successfully!','redirect_url' :'home/' }, status=status.HTTP_200_OK)
+                    response.set_cookie("jwt",token,10800)
+                    return response
+                else:
+                    return Response({'message': 'Login failed. User not found or invalid.','redirect':'home/'}, status=status.HTTP_400_BAD_REQUEST)
+
+            return Response({'message': 'Failed to obtain access token.'}, status=status.HTTP_400_BAD_REQUEST)
+
+        return Response({'message': 'No authorization code found.'}, status=status.HTTP_400_BAD_REQUEST)

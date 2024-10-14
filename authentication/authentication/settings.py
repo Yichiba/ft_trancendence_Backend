@@ -55,7 +55,7 @@ INSTALLED_APPS = [
 ]
 
 
-# Configure REST Framework to use JWTAuthentication
+# Configure REST Framework to use JWTAuthentication 
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': (
         'rest_framework_simplejwt.authentication.JWTAuthentication',
@@ -68,7 +68,6 @@ MIDDLEWARE = [
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'accounts.middleware.JWTAuthenticationMiddleware',
-    # 'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
@@ -124,8 +123,10 @@ AUTH_PASSWORD_VALIDATORS = [
 ]
 
 
+
+MEDIA_ROOT = '/Users/yichiba/Desktop/authentication/authentication/accounts/'
 MEDIA_URL = '/media/'
-MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+
 
 
 # Internationalization
