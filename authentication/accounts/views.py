@@ -11,6 +11,7 @@ from django.conf import settings
 from django.shortcuts import redirect, render
 import urllib.parse
 from django.http import HttpResponse
+from rest_framework.parsers import MultiPartParser, FormParser
 
 
 
@@ -91,23 +92,60 @@ class profile(APIView):
 
 
 class users(APIView):
+    parser_classes = (MultiPartParser, FormParser)
+
     @requires_authentication
-    def get(self,request,username):
-        user = models.CustomUser.objects.get(username=username)
-        img_url = user.profile_picture.url
-        print("img url :",img_url)
-        
-        if user:
-            response = Response ({
-            "user_id": user.id,
-            "email" :user.email,
-            "lastname":user.last_name ,
-            "profile_picture":img_url
+    def get(self, request, username):
+        try:
+            user = models.CustomUser.objects.get(username=username)
+            img_url = user.profile_picture.url
+            print("img url:", img_url)
+            
+            response = Response({
+                "user_id": user.id,
+                "email": user.email,
+                "lastname": user.last_name,
+                "profile_picture": img_url
             })
             return response
-        return Response({'User %s  Not found !! ',username},status=401)
-    def post(self,request,username):
-        if request.user.username == username:
-            pass
-        pass
+        except models.CustomUser.DoesNotExist:
+            return Response({'error': f'User {username} not found!'}, status=404)
+
+    @requires_authentication
+    def post(self, request, username):
+        try:
+            user = models.CustomUser.objects.get(username=username)
+            if 'profile_picture' in request.FILES:
+                user.profile_picture = request.FILES['profile_picture']
+            if 'username' in request.data:
+                user.username = request.data['username']
+            if 'email' in request.data:
+                user.email = request.data['email']
+            user.save()
+            return Response({'message': ' updated successfully!'})
+        except models.CustomUser.DoesNotExist:
+            return Response({'error': f'User {username} not found!'}, status=404)
+
+# class users(APIView):
+    
+#     @requires_authentication
+#     def get(self,request,username):
+#         user = models.CustomUser.objects.get(username=username)
+#         img_url = user.profile_picture.url
+#         print("img url :",img_url)
+        
+#         if user:
+#             response = Response ({
+#             "user_id": user.id,
+#             "email" :user.email,
+#             "lastname":user.last_name ,
+#             "profile_picture":img_url
+#             })
+#             return response
+#         return Response({'User %s  Not found !! ',username},status=401)
+    
+#     @requires_authentication
+#     def post(self,request,username):
+        
+#         pass
         

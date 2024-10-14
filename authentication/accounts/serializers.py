@@ -5,6 +5,8 @@ from . import views
 from django.contrib.auth.password_validation import validate_password
 
 class RegisterSerializer(serializers.ModelSerializer):
+    
+    profile_picture = serializers.ImageField(default='default.jpg')
     password = serializers.CharField(write_only=True)
     password_confirm = serializers.CharField(write_only=True)
 
@@ -13,9 +15,9 @@ class RegisterSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
     def validate(self, data):
-        if not data.get('42_login'):
-            if data['password'] != data['password_confirm']:
-                raise serializers.ValidationError("Passwords do not match.")
+        # if not data.get('42_login'):
+        if data['password'] != data['password_confirm']:
+            raise serializers.ValidationError("Passwords do not match.")
         return data
 
     def create(self, validated_data):
