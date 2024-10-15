@@ -28,7 +28,17 @@ def generate_jwt(user):
         "exp":(datetime.datetime.now() + datetime.timedelta(hours= 3)).timestamp()
     }
     token = jwt.encode(payloads, JWT_SECRET_KEY, 'HS256')
-    
+    return token
+def generate_jwt(user):
+
+    payloads = {
+        "sub": user.id,
+        "username":user.username,
+        "email":user.email,
+        "iat":datetime.datetime.now().timestamp(),
+        "exp":(datetime.datetime.now() + datetime.timedelta(hours= 3)).timestamp()
+    }
+    token = jwt.encode(payloads, JWT_SECRET_KEY, 'HS256')
     return token
     
     
@@ -44,10 +54,9 @@ def save_profile_picture(user, image_url):
     print("urll :",image_url)
     image_file = get_profile_pict(image_url)
     if image_file:
-        file_name = f'{user.username}_profile.jpg'  # Give the file a name
+        file_name = f'{user.username}_profile.jpg'
         user.profile_picture.save(file_name, image_file)
         user.save()
-    # else:
         
 
     

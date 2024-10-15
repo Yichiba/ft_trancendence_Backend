@@ -16,7 +16,7 @@ from rest_framework.response import Response
 
 
 def requires_authentication(view_func):
-    @wraps(view_func)  # Preserves function metadata
+    @wraps(view_func)
     def wrapper(request, *args, **kwargs):
         from django.contrib.auth.models import AnonymousUser
         from .models import CustomUser
@@ -51,9 +51,7 @@ def not_authenticated(view_func):
 
 def JWTCheck(token):
     try:
-        # Decode the token and return the payload if valid
         payload = jwt.decode(token, JWT_SECRET_KEY, algorithms=['HS256']) 
-        # print("payload ", payload)
         return payload
     
     except jwt.ExpiredSignatureError:
