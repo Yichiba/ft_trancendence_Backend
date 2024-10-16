@@ -8,7 +8,7 @@ from rest_framework.response import Response
 from django.shortcuts import redirect
 from django.http import HttpResponse
 from django.utils.crypto import get_random_string
-from .serializers import RegisterSerializer
+from .serializers import RegisterSerializer, UploadSerializer
 import datetime
 import jwt
 from rest_framework.views import APIView
@@ -126,3 +126,4 @@ class  callback_with_42(APIView):
             return Response({'message': 'Failed to obtain access token.'}, status=status.HTTP_400_BAD_REQUEST)
 
         return Response({'message': 'No authorization code found.'}, status=status.HTTP_400_BAD_REQUEST)
+    

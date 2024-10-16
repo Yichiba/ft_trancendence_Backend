@@ -29,7 +29,7 @@ class RegisterSerializer(serializers.ModelSerializer):
             email=validated_data['email'],
             profile_picture= validated_data['profile_picture']
         )
-        user.set_password(validated_data['password'])  # Hash the password
+        user.set_password(validated_data['password'])
         user.save()
         return user
     def get(self, id):
@@ -56,7 +56,6 @@ class UploadSerializer(serializers.ModelSerializer):
         }
 
     def validate(self, data):
-        print("validateed fuuunc\n\n")
         user = self.context['request'].user
         
         if data.get('username'):
@@ -73,7 +72,6 @@ class UploadSerializer(serializers.ModelSerializer):
         
         if data.get('profile_picture'):
             if data.get('profile_picture').content_type  not in ['image/jpeg', 'image/png','image/jpg']:
-                print("eroooooor raiiised ")
                 raise serializers.ValidationError("photo type not suported ")
             
         if data.get('password'):
@@ -81,16 +79,13 @@ class UploadSerializer(serializers.ModelSerializer):
                 validate_password(data.get('password'))
             except ValidationError as e:
                 raise serializers.ValidationError({"password": list(e.messages)})
-            print("data :", data)
         return data
     
     def update(self, instance, validated_data):
-        # Handle password separately to hash it before saving
         password = validated_data.pop('password', None)
         if password:
             instance.password = make_password(password)
         
-        # Update the remaining fields
         for attr, value in validated_data.items():
             setattr(instance, attr, value)
 

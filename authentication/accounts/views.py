@@ -120,14 +120,32 @@ class users(APIView):
         try:
             if username == "me":
                 username = request.user_data['username']
-            user = models.CustomUser.objects.get(username=username)
-            serialiser = UploadSerializer(user,data=request.data,context={'request': request},partial=True)
-            if serialiser.is_valid():
-                user = serialiser.save()
-                token = remote_login.generate_jwt(user=user)
-                response =  Response({'message': ' updated successfully!'})
-                response.set_cookie("jwt",token,10800 )
-                print("saveed succesfully ")
-            return response
+            if username == request.user_data['username']:
+                user = models.CustomUser.objects.get(username=username)
+                serialiser = UploadSerializer(user,data=request.data,context={'request': request},partial=True)
+                if serialiser.is_valid():
+                    user = serialiser.save()
+                    token = remote_login.generate_jwt(user=user)
+                    response =  Response({'message': ' updated successfully!'})
+                    response.set_cookie("jwt",token,10800 )
+                    print("saveed succesfully ")
+                    return response
+            else:
+                response =  Response({'message': ' not authorized to modify this user!'})
+                return response                
         except models.CustomUser.DoesNotExist:
             return Response({'error': f'User {username} not found!'}, status=404)
+
+
+# @not_authenticated
+def forgot_passwd(request):
+    print("from forgot fun ")
+    # email = request.data
+    if request.method == 'POST':
+        email = request.POST.get('email')
+        if email:
+            user = models.CustomUser.objects.get("email")
+            if user is None:
+                return Response({"user with this email not found "})
+            else:
+                return Response({"user found secssefully "})
