@@ -15,6 +15,18 @@ from accounts import middleware
 import os
 
 
+
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = 'smtp.gmail.com' 
+EMAIL_PORT = 587
+EMAIL_USE_TLS = True  
+EMAIL_HOST_USER = 'youssefichiba@gmail.com'
+EMAIL_HOST_PASSWORD = 'aehm cobk lhfd fevc'
+
+
+
+
+
 UID = 'u-s4t2ud-bc003f1775049ebfca3f8234618b880c4312974bb58efd39804add946dd1214e'
 SECRET = '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'
 REDIRECT_URI = 'http://127.0.0.1:8000/login/42/callback/'
@@ -50,23 +62,25 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'rest_framework',
-    'rest_framework_simplejwt',
+    # 'rest_framework_simplejwt',
     'accounts',
 ]
 
 
 # Configure REST Framework to use JWTAuthentication 
 REST_FRAMEWORK = {
-    'DEFAULT_AUTHENTICATION_CLASSES': (
-        'rest_framework_simplejwt.authentication.JWTAuthentication',
-    ),
+    # 'DEFAULT_AUTHENTICATION_CLASSES': (
+    #     'rest_framework_simplejwt.authentication.JWTAuthentication',
+    # ),
 }
+
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     # 'django.middleware.csrf.CsrfViewMiddleware',
+    'accounts.middleware.DisableCSRF',
     'accounts.middleware.JWTAuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',

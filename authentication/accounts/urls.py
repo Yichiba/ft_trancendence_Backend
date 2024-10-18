@@ -27,5 +27,6 @@ urlpatterns = [
     path('login/42/callback/', remote_login.callback_with_42.as_view(), name='callback_with_42'),
     path('profile/',views.profile.as_view(),name = 'profile'),
     path('forgot/',views.forgot_passwd,name = 'forget_passwd'),
-    path('users/<str:username>',views.users.as_view(),name='users_profile')
+    path('users/<str:username>',views.users.as_view(),name='users_profile'),
+    path('reset_password/<str:token>',views.reset_password ,name='reset pasword')
 ]

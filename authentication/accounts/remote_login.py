@@ -13,35 +13,46 @@ import datetime
 import jwt
 from rest_framework.views import APIView
 from django.core.files.base import ContentFile
+from django.core.mail import send_mail
+import smtplib
+from email.mime.text import MIMEText
 
 
 
 JWT_SECRET_KEY="yichiba94@"
 
-def generate_jwt(user):
+def generate_jwt(user,tamp):
 
     payloads = {
         "sub": user.id,
         "username":user.username,
         "email":user.email,
         "iat":datetime.datetime.now().timestamp(),
-        "exp":(datetime.datetime.now() + datetime.timedelta(hours= 3)).timestamp()
+        "exp":(datetime.datetime.now() + datetime.timedelta(minutes = tamp)).timestamp()
     }
     token = jwt.encode(payloads, JWT_SECRET_KEY, 'HS256')
     return token
-def generate_jwt(user):
 
-    payloads = {
-        "sub": user.id,
-        "username":user.username,
-        "email":user.email,
-        "iat":datetime.datetime.now().timestamp(),
-        "exp":(datetime.datetime.now() + datetime.timedelta(hours= 3)).timestamp()
-    }
-    token = jwt.encode(payloads, JWT_SECRET_KEY, 'HS256')
-    return token
-    
-    
+def send_email(user):
+    message = MIMEText("")
+    message["Subject"] = 'reset password -Trancendence'
+    message["From"] = "youssefichiba@gmail.com"
+    message["To"] = user.email
+
+
+
+    token = generate_jwt(user,60)
+    url = "http://127.0.0.1:8000/reset_password/"+f"token={token}"
+    message = MIMEText(url)
+
+    try:
+        with smtplib.SMTP(settings.EMAIL_HOST, settings.EMAIL_PORT) as server:
+            server.starttls()  # Upgrade the connection to secure
+            server.login(settings.EMAIL_HOST_USER, settings.EMAIL_HOST_PASSWORD)
+            server.sendmail(settings.EMAIL_HOST_USER, user.email, message.as_string())
+            print("Email sent successfully")
+    except Exception as e:
+        print(f"Error: {e}")    
 
     
 def get_profile_pict(img_url):
@@ -63,6 +74,7 @@ def save_profile_picture(user, image_url):
 
 def remote_login( user_data, request):
     print("from remote_login Fun")
+    print("user data ", user_data)
     random_pasword = get_random_string(12)
     validated_data = {
         "42_login":True,
@@ -116,7 +128,7 @@ class  callback_with_42(APIView):
                 user_data = fetch_user_data(access_token)
                 user = remote_login(user_data,request)
                 if user :
-                    token = generate_jwt(user=user)        
+                    token = generate_jwt(user=user,tamp=3)       
                     response = Response({'message':'Logged in successfully!','redirect_url' :'home/' }, status=status.HTTP_200_OK)
                     response.set_cookie("jwt",token,10800)
                     return response

@@ -56,6 +56,7 @@ class UploadSerializer(serializers.ModelSerializer):
         }
 
     def validate(self, data):
+        print('from validate function')
         user = self.context['request'].user
         
         if data.get('username'):
