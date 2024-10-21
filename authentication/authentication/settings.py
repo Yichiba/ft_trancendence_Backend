@@ -70,7 +70,7 @@ INSTALLED_APPS = [
 # Configure REST Framework to use JWTAuthentication 
 REST_FRAMEWORK = {
     # 'DEFAULT_AUTHENTICATION_CLASSES': (
-    #     'rest_framework_simplejwt.authentication.JWTAuthentication',
+        # 'rest_framework_simplejwt.authentication.JWTAuthentication',
     # ),
 }
 
@@ -80,7 +80,7 @@ MIDDLEWARE = [
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     # 'django.middleware.csrf.CsrfViewMiddleware',
-    'accounts.middleware.DisableCSRF',
+    # 'accounts.middleware.DisableCSRF',
     'accounts.middleware.JWTAuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',

@@ -43,11 +43,10 @@ def not_authenticated(view_func):
     return wrapper
 
 
-
 def JWTCheck(token, purpose):
     try:
         print("Checking JWT...")
-        if purpose == "Authorisation":
+        if purpose == "Authorization":
             token = token.split(" ")
         else:
             token = token.split("=")
@@ -74,7 +73,9 @@ class JWTAuthenticationMiddleware(MiddlewareMixin):
             print("payload",payload)
             if payload:
                 request.user_data = payload
+                print("here username  ",payload["username"])
                 request.user = CustomUser.objects.get(username= payload['username'])
+                print("here2 ")
                 request.is_authenticated = True
             else:
                 request.user_data = None    
@@ -88,31 +89,6 @@ class JWTAuthenticationMiddleware(MiddlewareMixin):
     
     
     
-class DisableCSRF(MiddlewareMixin):
-    def process_request(self, request):
-        setattr(request, '_dont_enforce_csrf_checks', True)
-    
-    
-    
-    
-    
-    
-# class JWTAuthenticationMiddleware(MiddlewareMixin):
+# class DisableCSRF(MiddlewareMixin):
 #     def process_request(self, request):
-#         from .models import CustomUser
-#         print("Processing request in middleware...",request.headers.get('Authorization')
-# )
-#         if "jwt" in request.COOKIES:
-#             payload = JWTCheck(request.COOKIES["jwt"])
-#             if payload:
-#                 request.user_data = payload
-#                 request.user = CustomUser.objects.get(username= payload['username'])
-#                 request.is_authenticated = True
-#             else:
-#                 request.user_data = None    
-#                 request.is_authenticated = False
-#         else:
-#             print("No JWT in cookies.")
-#             request.user_data = None
-#             request.is_authenticated = False
-#         print("out of middleware...")
+#         setattr(request, '_dont_enforce_csrf_checks', True)

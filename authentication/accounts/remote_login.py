@@ -16,7 +16,20 @@ from django.core.files.base import ContentFile
 from django.core.mail import send_mail
 import smtplib
 from email.mime.text import MIMEText
+from django.middleware.csrf import get_token
 
+
+
+def generateResponse(request,msg, status_code):
+    print("generate response funct")
+    token = generate_jwt(request.user, tamp=18)
+    print("token ",token)
+    csrf_token = get_token(request)
+    response = Response({'message' :msg ,'token' : token},status=status_code)
+    print("ouuuuuut of Response ")
+    response.set_cookie("X-CSRFToken",csrf_token)
+    response.set_cookie("JWT_token",token)
+    return response
 
 
 JWT_SECRET_KEY="yichiba94@"
@@ -41,7 +54,7 @@ def send_email(user):
 
 
 
-    token = generate_jwt(user,60)
+    token = generate_jwt(user,5)
     url = "http://127.0.0.1:8000/reset_password/"+f"token={token}"
     message = MIMEText(url)
 
@@ -128,9 +141,8 @@ class  callback_with_42(APIView):
                 user_data = fetch_user_data(access_token)
                 user = remote_login(user_data,request)
                 if user :
-                    token = generate_jwt(user=user,tamp=3)       
-                    response = Response({'message':'Logged in successfully!','redirect_url' :'home/' }, status=status.HTTP_200_OK)
-                    response.set_cookie("jwt",token,10800)
+                    message = 'Logged in successfully!'
+                    response = generateResponse(request,message,status.HTTP_200_OK)
                     return response
                 else:
                     return Response({'message': 'Login failed. User not found or invalid.','redirect':'home/'}, status=status.HTTP_400_BAD_REQUEST)
