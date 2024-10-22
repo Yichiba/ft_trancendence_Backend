@@ -83,7 +83,7 @@ class friends(APIView):
         except:
                 print("user dosent  exist ")
                 return Response({f"no no user found with this username : {username}"},status=404)
-
+    
 
 
 
