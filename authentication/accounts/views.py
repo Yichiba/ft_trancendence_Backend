@@ -30,26 +30,61 @@ def change_passwrd(request,username):
         return Response({"Error : password is EMPTY or NOT VALID !!!"},status=404)
     pass
 
+class friends(APIView):
+    @requires_authentication
+    def send_friend_request(request,username):
+        user1 = request.user
+        user2=models.CustomUser.objects.get(username=username)
+        if user2:
+            try:
+                user1_friend = models.FriendShip.objects.get(user2 = user2)
+                print("user1_friend",user1_friend.status)
+                response = remote_login.generateResponse(request," u might be a friend ",200)
+                return response
 
+            except models.FriendShip.DoesNotExist:
+                user1_friend = models.FriendShip.objects.create(user1=user1,user2=user2)
+                user1_friend.save()
+                response = remote_login.generateResponse(request," request sent succesfully ",200)
+                return response
+        response = remote_login.generateResponse(request," ok ",200)
+        return response
 
-@api_view(['POST'])
-def send_friend_request(request,username):
-    user1 = request.user
-    user2=models.CustomUser.objects.get(username=username)
-    if user2:
+    @requires_authentication
+    def accept_friend_request(request,username):
+        user1 = request.user
         try:
-            user1_friend = models.FriendShip.objects.get(user2 = user2)
-            print("user1_friend",user1_friend.status)
-            response = remote_login.generateResponse(request," u might be a friend ",200)
-            return response
+            user2 = models.CustomUser.objects.get(username=username)
+            try:
+                user1_friend = models.FriendShip.objects.filter(user1=user1,user2=user2)
+                user1_friend.status = True
+                user1_friend.save()
+                return Response({f"{user2}  is your friend"},status=200)
+            except:
+                print("friendship dosent exist ")
+                return Response({f"no frienship found{user2}"},status=404)
+        except:
+                print("user dosent  exist ")
+                return Response({f"no no user found with this username : {username}"},status=404)
 
-        except models.FriendShip.DoesNotExist:
-            user1_friend = models.FriendShip.objects.create(user1=user1,user2=user2)
-            user1_friend.save()
-            response = remote_login.generateResponse(request," request sent succesfully ",200)
-            return response
-    response = remote_login.generateResponse(request," ok ",200)
-    return response
+
+    @requires_authentication
+    def reject_friend_request(request,username):
+        user1 = request.user
+        try:
+            user2 = models.CustomUser.objects.get(username=username)
+            try:
+                user1_friend = models.FriendShip.objects.filter(user1=user1,user2=user2)
+                user1_friend.status = True
+                return Response({f"{user2}  is your friend"},status=200)
+            except:
+                print("friendship dosent exist ")
+                return Response({f"no frienship found{user2}"},status=404)
+        except:
+                print("user dosent  exist ")
+                return Response({f"no no user found with this username : {username}"},status=404)
+
+
 
 
 class login_view(APIView):
@@ -155,7 +190,6 @@ class users(APIView):
             return response
         except models.CustomUser.DoesNotExist:
             return Response({'error': f'User {username} not found!'}, status=404)
-
     @requires_authentication
     def post(self, request, username):
         response = Response()

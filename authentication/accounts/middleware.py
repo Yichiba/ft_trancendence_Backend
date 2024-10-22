@@ -16,12 +16,13 @@ from rest_framework.response import Response
 
 
 def requires_authentication(view_func):
+    
     print("authenticated decorator.\n")
     @wraps(view_func)
     def wrapper(request, *args, **kwargs):
         if args:
             request = args[0]
-        print("request.user ",request.user)
+        # print("request.user ",request.user)
         if request.is_authenticated :
             return view_func(request, *args, **kwargs)
         return Response({'error': 'Authentication required'}, status=401)
