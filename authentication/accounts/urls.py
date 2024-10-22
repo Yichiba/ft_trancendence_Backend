@@ -28,5 +28,7 @@ urlpatterns = [
     path('profile/',views.profile.as_view(),name = 'profile'),
     path('forgot/',views.forgot_passwd,name = 'forget_passwd'),
     path('users/<str:username>',views.users.as_view(),name='users_profile'),
-    path('reset_password/<str:token>',views.reset_password ,name='reset pasword')
+    path('reset_password/<str:token>',views.reset_password ,name='reset pasword'),
+    path('psswd/<str:username>',views.change_passwrd ,name='reset pasword'),
+    path('send_request/<str:username>',views.send_friend_request,name='request')
 ]

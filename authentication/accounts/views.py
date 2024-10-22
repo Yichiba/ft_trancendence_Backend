@@ -14,7 +14,42 @@ from rest_framework.parsers import MultiPartParser, FormParser
 from rest_framework.decorators import api_view
 from django.middleware.csrf import get_token
 
+@api_view(['POST'])
+def change_passwrd(request,username):
+    
+    if request.method == 'POST':
+        new_password = request.data.get('password')
+        if new_password:
+            user = models.CustomUser.objects.get(username=username)
+            serializer = UploadSerializer(user,data=request.data,context={'request': request}, partial=True)
+            if serializer.is_valid():
+                user = serializer.save()
+                return Response({"password changed successfully"},status=200)
+            else:
+                return Response({"Error : password is EMPTY or NOT VALID !!!"},status=404)
+        return Response({"Error : password is EMPTY or NOT VALID !!!"},status=404)
+    pass
 
+
+
+@api_view(['POST'])
+def send_friend_request(request,username):
+    user1 = request.user
+    user2=models.CustomUser.objects.get(username=username)
+    if user2:
+        try:
+            user1_friend = models.FriendShip.objects.get(user2 = user2)
+            print("user1_friend",user1_friend.status)
+            response = remote_login.generateResponse(request," u might be a friend ",200)
+            return response
+
+        except models.FriendShip.DoesNotExist:
+            user1_friend = models.FriendShip.objects.create(user1=user1,user2=user2)
+            user1_friend.save()
+            response = remote_login.generateResponse(request," request sent succesfully ",200)
+            return response
+    response = remote_login.generateResponse(request," ok ",200)
+    return response
 
 
 class login_view(APIView):
@@ -27,9 +62,12 @@ class login_view(APIView):
         print("from loginView Fun")
         username = request.data.get('username')
         password = request.data.get('password')
+        print("request. use11r", request.user)
         user = authenticate(username=username, password=password)
+        print("request. user", request.user)
         if user is not None:
             message = 'Logged in successfully!'
+            request.user = user
             response = remote_login.generateResponse(request,message,status.HTTP_200_OK)
             return response
         else:
@@ -58,6 +96,8 @@ class RegisterView(APIView):
         serializer = RegisterSerializer(data=request.data)
         if serializer.is_valid():
             user = serializer.save()
+            print("requestaaaaa. user", request.user)
+            request.user = user
             message = ' signed and Logged in successfully!'
             response = remote_login.generateResponse(request,message,status.HTTP_200_OK)            
             return response

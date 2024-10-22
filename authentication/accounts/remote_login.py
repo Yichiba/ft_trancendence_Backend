@@ -103,7 +103,9 @@ def remote_login( user_data, request):
         return existing_user
     except CustomUser.DoesNotExist:
         serializer = RegisterSerializer(data=validated_data)
+        print("serializer ")
         if serializer.is_valid():
+            print("serializer valiiiid   ")
             new_user = serializer.save()
             save_profile_picture(new_user,user_data['image']['versions']['small'])
             return new_user
@@ -121,7 +123,6 @@ def fetch_user_data(access_token):
 
 
 class  callback_with_42(APIView):
-    
     def get(self,request):
         code = request.GET.get('code')
         print("callback func")
@@ -142,6 +143,7 @@ class  callback_with_42(APIView):
                 user = remote_login(user_data,request)
                 if user :
                     message = 'Logged in successfully!'
+                    request.user = user
                     response = generateResponse(request,message,status.HTTP_200_OK)
                     return response
                 else:

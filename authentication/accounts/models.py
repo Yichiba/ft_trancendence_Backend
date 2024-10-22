@@ -11,3 +11,10 @@ class CustomUser(AbstractUser):
 
     def __str__(self):
         return self.username
+    
+
+class   FriendShip(models.Model):
+    user1 = models.ForeignKey(CustomUser, on_delete=models.CASCADE, related_name="user1")
+    user2 = models.ForeignKey(CustomUser,on_delete=models.CASCADE, related_name="user2")
+    status = models.BooleanField(default=False)
+    created_at = models.DateTimeField(auto_now_add=True)
