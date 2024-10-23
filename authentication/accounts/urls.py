@@ -30,7 +30,8 @@ urlpatterns = [
     path('users/<str:username>',views.users.as_view(),name='users_profile'),
     path('reset_password/<str:token>',views.reset_password ,name='reset pasword'),
     path('psswd/<str:username>',views.change_passwrd ,name='reset pasword'),
-    path('send/<str:username>',views.friends.send_friend_request,name='request'),
-    path('accept/<str:username>',views.friends.accept_friend_request,name='request'),
-    path('reject/<str:username>',views.friends.reject_friend_request,name='request')
+    path('send/<str:username>',views.send_friend_request,name='request'),
+    path('accept/<str:username>',views.accept_friend_request,name='request'),
+    path('reject/<str:username>',views.reject_friend_request,name='request'),
+    path('friends/',views.get_friends ,name='friend list')
 ]

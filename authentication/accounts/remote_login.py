@@ -23,7 +23,7 @@ def generateResponse(request,msg, status_code):
     print("generate response funct")
     token = ''
     if request.user:
-        token = generate_jwt(request.user, tamp=18)
+        token = generate_jwt(request.user, tamp=180)
     csrf_token = get_token(request)
     response = Response({'message' :msg ,'token' : token},status=status_code)
     print("ouuuuuut of Response ")
