@@ -14,9 +14,69 @@ from rest_framework.parsers import MultiPartParser, FormParser
 from rest_framework.decorators import api_view
 from django.middleware.csrf import get_token
 
-@api_view(['POST'])
+
+# @requires_authentication
+# @api_view(["GET"])
+# def get_online_friends(request):
+#     online = []
+#     try:
+#         # Make a GET request to the 'friends/' API endpoint
+#         response = requests.get(f"{settings.API_BASE_URL}/friends/")
+        
+#         # Check if the request was successful
+#         if response.status_code == 200:
+#             friends = response.json()  # Assuming the response is in JSON format
+            
+#             for friend in friends:
+#                 if friend['status']:
+#                     if friend['user1'] != request.user.username:
+#                         user1 = models.CustomUser.objects.get(username=friend['user1'])
+#                         if user1.status:
+#                             online.insert(0, user1.username)
+#                     else:
+#                         user2 = models.CustomUser.objects.get(username=friend['user2'])
+#                         if user2.status:
+#                             online.insert(0, user2.username)
+#             return Response({"online friends": online}, status=200)
+#         else:
+#             return Response({"error": "Failed to fetch friends"}, status=response.status_code)
+#     except Exception as e:
+#         return Response({"error": str(e)}, status=500)
+
+@requires_authentication
+@api_view(["GET"])
+def get_online_friends(request):
+    online = []
+    try:
+        friends = models.FriendShip.objects.filter(user1=request.user) | models.FriendShip.objects.filter(user2=request.user)
+        for friend in friends:
+            if friend.status:
+                if friend.user1 != request.user:
+                    friend.user1 = models.CustomUser.objects.get(username=friend.user1.username)
+                    if friend.user1.status:
+                        online.insert(0,friend.user1.username)
+                else:
+                    friend.user2 = models.CustomUser.objects.get(username=friend.user2.username)
+                    if friend.user2.status:
+                        online.insert(0,friend.user2.username)
+        print("online users :",online)
+        return Response({" online friend :"}, status=200)
+    except:
+        return Response({" error : friends  dsosenr exisr "}, status=404)
+
+
+
+
+
+
+@api_view(['POST',"GET"])
 def change_passwrd(request,username):
-    
+    if request.method == 'GET':
+        active_users = []
+        users = models.CustomUser.objects.all()
+        for user in users:
+            active_users.insert(0,user.username)
+        return Response({f"users = {active_users}"},status=200)
     if request.method == 'POST':
         new_password = request.data.get('password')
         if new_password:
@@ -29,9 +89,6 @@ def change_passwrd(request,username):
                 return Response({"Error : password is EMPTY or NOT VALID !!!"},status=404)
         return Response({"Error : password is EMPTY or NOT VALID !!!"},status=404)
     
-    
-    
-    
 @requires_authentication
 @api_view(["GET"])
 def get_friends(request):
@@ -39,16 +96,20 @@ def get_friends(request):
     friend_requests = []
     user = request.user
     try:
-        friends = models.FriendShip.objects.all()
+        friends = models.FriendShip.objects.filter(user1=user) | models.FriendShip.objects.filter(user2=user)
         if friends.exists():
             for friend in friends:
-                if friend.status:
-                    active_friends.insert(0,friend)
+                if friend.status == True:
+                    if friend.user1 == user:
+                        active_friends.insert(0,friend.user2.username)
+                    else:
+                        active_friends.insert(0,friend.user1.username)
                 else:
-                    friend_requests.insert(0,friend)
-            print("friends length:",len(active_friends))
-            print("friends length:",len(friend_requests))
-            return Response({f" is already in your friendlist {friend}"},status=200)
+                    if friend.user1 == user:
+                        friend_requests.insert(0,friend.user2.username)
+                    else:
+                        friend_requests.insert(0,friend.user1.username)
+            return Response(f"friends:{active_friends} ..."f"     friends_request:{friend_requests}",status=200)
         else:
             return Response({"message": "nothing "}, status=200)
    
@@ -134,7 +195,6 @@ class login_view(APIView):
         print("from loginView Fun")
         username = request.data.get('username')
         password = request.data.get('password')
-        print("request. use11r", request.user)
         user = authenticate(username=username, password=password)
         print("request. user", request.user)
         if user is not None:
@@ -150,8 +210,13 @@ class logout_view(APIView):
     @requires_authentication
     def post(self, request):
         print(" request fro logpiut ",request.user)
+        state = request.user.status
+        request.user.status = False
+        request.user.save()
+        user = models.CustomUser.objects.get(username=request.user.username)
+        
         logout(request=request)
-        response = Response({'message': 'Logged out successfully!'},status=status.HTTP_200_OK)
+        response = Response({'message': f'Logged out successfully!  status = {user.status}  old state {state}'},status=status.HTTP_200_OK)
         response.delete_cookie('JWT_token')
         response.delete_cookie("X-CSRFToken")
         return response
@@ -178,7 +243,7 @@ class RegisterView(APIView):
 class home_view(APIView):
     @requires_authentication
     def get(self,request):
-        print("request.user",request.user)
+        print("request.user",request.user.status)
         return Response("Home page",status=status.HTTP_200_OK)
 
 
@@ -281,15 +346,12 @@ def forgot_passwd(request):
 
 @api_view(["POST"])
 def reset_password(request,token):
-    print("from reset fun ")
+    print("from reset fun  token = ",token)
     if  request.method == 'POST':
-        print("request ", request)
         new_password = request.data.get('password')
-        print("new_password",new_password)
         if new_password:
-            print("new_password",new_password)
             print("token",token)
-            payload = middleware.JWTCheck(token, "jwt")
+            payload = middleware.JWTCheck(token)
             print("payload",payload)
             if payload:
                     user = models.CustomUser.objects.get(username=payload['username'])

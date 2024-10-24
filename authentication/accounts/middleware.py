@@ -17,7 +17,6 @@ from rest_framework.response import Response
 
 def requires_authentication(view_func):
     
-    print("authenticated decorator.\n")
     @wraps(view_func)
     def wrapper(request, *args, **kwargs):
         if args:
@@ -44,14 +43,10 @@ def not_authenticated(view_func):
     return wrapper
 
 
-def JWTCheck(token, purpose):
+def JWTCheck(token):
     try:
-        print("Checking JWT...")
-        if purpose == "Authorization":
-            token = token.split(" ")
-        else:
-            token = token.split("=")
-        payload = jwt.decode(token[1], JWT_SECRET_KEY, algorithms=['HS256']) 
+        # token = token.split("=")
+        payload = jwt.decode(token, JWT_SECRET_KEY, algorithms=['HS256']) 
         return payload
     
     except jwt.ExpiredSignatureError:
@@ -68,9 +63,10 @@ class JWTAuthenticationMiddleware(MiddlewareMixin):
         from .models import CustomUser
         print("Processing request in middleware...",request.headers.get('Authorization')
 )
-        if request.headers.get('Authorization'):
-            token = request.headers.get('Authorization')
-            payload = JWTCheck(token, "Authorization")
+        if 'JWT_token' in request.COOKIES:
+            token = request.COOKIES['JWT_token']
+            print("token = ", token)
+            payload = JWTCheck(token)
             print("payload",payload)
             if payload:
                 request.user_data = payload

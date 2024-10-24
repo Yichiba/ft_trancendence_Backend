@@ -19,13 +19,17 @@ from email.mime.text import MIMEText
 from django.middleware.csrf import get_token
 
 
+
 def generateResponse(request,msg, status_code):
     print("generate response funct")
-    token = ''
+    token = None
     if request.user:
+        request.user.status = True
+        request.user.save()
+        print("status :", request.user.status)
         token = generate_jwt(request.user, tamp=180)
     csrf_token = get_token(request)
-    response = Response({'message' :msg ,'token' : token},status=status_code)
+    response = Response({'message' :msg},status=status_code)
     print("ouuuuuut of Response ")
     response.set_cookie("X-CSRFToken",csrf_token)
     response.set_cookie("JWT_token",token)
@@ -51,11 +55,8 @@ def send_email(user):
     message["Subject"] = 'reset password -Trancendence'
     message["From"] = "youssefichiba@gmail.com"
     message["To"] = user.email
-
-
-
     token = generate_jwt(user,5)
-    url = "http://127.0.0.1:8000/reset_password/"+f"token={token}"
+    url = "http://127.0.0.1:8000/reset_password/"+token
     message = MIMEText(url)
 
     try:
@@ -83,7 +84,7 @@ def save_profile_picture(user, image_url):
         user.save()
         
 
-    
+
 
 def remote_login( user_data, request):
     print("from remote_login Fun")
@@ -103,9 +104,7 @@ def remote_login( user_data, request):
         return existing_user
     except CustomUser.DoesNotExist:
         serializer = RegisterSerializer(data=validated_data)
-        print("serializer ")
         if serializer.is_valid():
-            print("serializer valiiiid   ")
             new_user = serializer.save()
             save_profile_picture(new_user,user_data['image']['versions']['small'])
             return new_user
@@ -123,6 +122,7 @@ def fetch_user_data(access_token):
 
 
 class  callback_with_42(APIView):
+    
     def get(self,request):
         code = request.GET.get('code')
         print("callback func")
@@ -143,7 +143,6 @@ class  callback_with_42(APIView):
                 user = remote_login(user_data,request)
                 if user :
                     message = 'Logged in successfully!'
-                    request.user = user
                     response = generateResponse(request,message,status.HTTP_200_OK)
                     return response
                 else:
