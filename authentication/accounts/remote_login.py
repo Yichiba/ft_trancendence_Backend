@@ -20,19 +20,19 @@ from django.middleware.csrf import get_token
 
 
 
-def generateResponse(request,msg, status_code):
-    print("generate response funct")
+def generateResponse(request, msg, status_code):
+    print("Generating response")
+
     token = None
-    if request.user:
+
+    if request.user.is_authenticated:
         request.user.status = True
         request.user.save()
-        print("status :", request.user.status)
         token = generate_jwt(request.user, tamp=180)
     csrf_token = get_token(request)
-    response = Response({'message' :msg},status=status_code)
-    print("ouuuuuut of Response ")
-    response.set_cookie("X-CSRFToken",csrf_token)
-    response.set_cookie("JWT_token",token)
+    response = Response({'message': msg}, status=status_code)
+    response.set_cookie("X-CSRFToken", csrf_token)
+    response.set_cookie("JWT_token", token)
     return response
 
 
@@ -64,7 +64,6 @@ def send_email(user):
             server.starttls()  # Upgrade the connection to secure
             server.login(settings.EMAIL_HOST_USER, settings.EMAIL_HOST_PASSWORD)
             server.sendmail(settings.EMAIL_HOST_USER, user.email, message.as_string())
-            print("Email sent successfully")
     except Exception as e:
         print(f"Error: {e}")    
 
@@ -76,19 +75,14 @@ def get_profile_pict(img_url):
     return None
     
 def save_profile_picture(user, image_url):
-    print("urll :",image_url)
     image_file = get_profile_pict(image_url)
     if image_file:
         file_name = f'{user.username}_profile.jpg'
         user.profile_picture.save(file_name, image_file)
         user.save()
-        
-
-
 
 def remote_login( user_data, request):
     print("from remote_login Fun")
-    print("user data ", user_data)
     random_pasword = get_random_string(12)
     validated_data = {
         "42_login":True,
@@ -124,9 +118,9 @@ def fetch_user_data(access_token):
 class  callback_with_42(APIView):
     
     def get(self,request):
+        print("callback funcxxxxx")
         code = request.GET.get('code')
         print("callback func")
-        print("code : ",code)
         if code:
             token_url = 'https://api.intra.42.fr/v2/oauth/token'
             payload = {
@@ -137,11 +131,13 @@ class  callback_with_42(APIView):
                 'code': code
             }
             response = requests.post(token_url, data=payload)
+            print("response",response.status_code)
             if response.status_code == 200:
                 access_token = response.json().get('access_token')
                 user_data = fetch_user_data(access_token)
                 user = remote_login(user_data,request)
                 if user :
+                    request.user = user
                     message = 'Logged in successfully!'
                     response = generateResponse(request,message,status.HTTP_200_OK)
                     return response

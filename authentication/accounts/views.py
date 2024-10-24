@@ -47,20 +47,21 @@ from django.middleware.csrf import get_token
 @api_view(["GET"])
 def get_online_friends(request):
     online = []
+    i = 0
     try:
         friends = models.FriendShip.objects.filter(user1=request.user) | models.FriendShip.objects.filter(user2=request.user)
         for friend in friends:
+            i = i  +1
             if friend.status:
-                if friend.user1 != request.user:
-                    friend.user1 = models.CustomUser.objects.get(username=friend.user1.username)
-                    if friend.user1.status:
-                        online.insert(0,friend.user1.username)
+                if friend.user1.username != request.user.username:
+                    user = models.CustomUser.objects.get(username=friend.user1.username)
+                    if user.status:
+                        online.insert(0,user.username)
                 else:
-                    friend.user2 = models.CustomUser.objects.get(username=friend.user2.username)
-                    if friend.user2.status:
-                        online.insert(0,friend.user2.username)
-        print("online users :",online)
-        return Response({" online friend :"}, status=200)
+                    user = models.CustomUser.objects.get(username=friend.user2.username)
+                    if user.status:
+                        online.insert(0,user.username)
+        return Response({f" online friend :{online}"}, status=200)
     except:
         return Response({" error : friends  dsosenr exisr "}, status=404)
 
@@ -123,21 +124,31 @@ def get_friends(request):
 def send_friend_request(request, username):
     user1 = request.user
     try:
+        
         user2 = models.CustomUser.objects.get(username=username)
+        
         if user1 != user2:
+            
             try:
+                
                 existing_friendship = models.FriendShip.objects.get(user1=user1,user2=user2)
                 if existing_friendship.status:
                     return Response({f"{username} is already in your friendlist"},status=200)
                 return Response({"message": f"You have a pending request from {username}"}, status=200)
+            
             except models.FriendShip.DoesNotExist:
+                
                 try:
-                    existing_friendship = models.FriendShip.objects.get(user1=user1,user2=user2)
+                    existing_friendship = models.FriendShip.objects.get(user1=user2,user2=user1)
                     if existing_friendship.status:
                         return Response({f"{username} is already in your friendlist"},status=200)
+                    return Response({"message": f"You have a pending request from {username}"}, status=200)
+                
                 except models.FriendShip.DoesNotExist:
+                    
                     models.FriendShip.objects.create(user1=user1, user2=user2)
                     return Response({"message": "Friend request sent successfully"}, status=200)
+                
         return Response({"message": "u cannot send a request to ur self !!!"}, status=200)
     except models.CustomUser.DoesNotExist:
         return Response({"message": "User not found"}, status=404)
@@ -151,10 +162,8 @@ def accept_friend_request(request, username):
         user2 = models.CustomUser.objects.get(username=username)
         try:
             friendship = models.FriendShip.objects.get(user1=user2, user2=user1)
-            print("friendship exist  status == ", friendship.status)
             if friendship.status == False:
                 friendship.status = True
-                print("status == ",friendship.status)
                 friendship.save()
                 return Response({"message": f"{user2.username} is now your friend"}, status=200)
             else:
@@ -187,16 +196,29 @@ def reject_friend_request(request, username):
 
 class login_view(APIView):
     def get(self,request):
-        print("get login")
-        message = 'Loggin page '
-        response = remote_login.generateResponse(request,message,status.HTTP_200_OK)
-        return response
+        html = """
+        <html>
+            <body>
+            <form method="post" action="/login/">
+                <label for="username">Username:</label><br>
+                <input type="text" id="username" name="username"><br>
+                <label for="password">Password:</label><br>
+                <input type="password" id="password" name="password"><br><br>
+                <input type="submit" value="Submit">
+            </form>
+            </body>
+        </html>
+        """
+        return HttpResponse(html)
+        # print("get login")
+        # message = 'Loggin page '
+        # response = remote_login.generateResponse(request,message,status.HTTP_200_OK)
+        # return response
     def post(self,request):
         print("from loginView Fun")
         username = request.data.get('username')
         password = request.data.get('password')
         user = authenticate(username=username, password=password)
-        print("request. user", request.user)
         if user is not None:
             message = 'Logged in successfully!'
             request.user = user
@@ -209,7 +231,6 @@ class login_view(APIView):
 class logout_view(APIView):
     @requires_authentication
     def post(self, request):
-        print(" request fro logpiut ",request.user)
         state = request.user.status
         request.user.status = False
         request.user.save()
@@ -233,7 +254,6 @@ class RegisterView(APIView):
         serializer = RegisterSerializer(data=request.data)
         if serializer.is_valid():
             user = serializer.save()
-            print("requestaaaaa. user", request.user)
             request.user = user
             message = ' signed and Logged in successfully!'
             response = remote_login.generateResponse(request,message,status.HTTP_200_OK)            
@@ -243,11 +263,11 @@ class RegisterView(APIView):
 class home_view(APIView):
     @requires_authentication
     def get(self,request):
-        print("request.user",request.user.status)
         return Response("Home page",status=status.HTTP_200_OK)
 
 
 def login_with_42(request):
+    print("login_with_42 fucn")
     auth_url = "https://api.intra.42.fr/oauth/authorize"
     params = {
         "client_id": settings.UID,
@@ -261,6 +281,7 @@ def login_with_42(request):
             string_params += '&'
         string_params += f"{key}={value}"
     redirect_url = f"{auth_url}?{string_params}"
+    print(" ouuuut redirect_url = ",redirect_url)
     return redirect(redirect_url)
 
 
@@ -280,14 +301,13 @@ class users(APIView):
                 username = request.user_data['username']
             user = models.CustomUser.objects.get(username=username)
             img_url = user.profile_picture.url
-            print("img url:", img_url)
-            
+            print("image url = ",img_url)
             response = Response({
                 "user_id": user.id,
                 "username":user.username,
                 "email": user.email,
                 "lastname": user.last_name,
-                "profile_picture": img_url
+                "profile_picture": request.build_absolute_uri(img_url)
             })
             return response
         except models.CustomUser.DoesNotExist:
@@ -298,17 +318,14 @@ class users(APIView):
         try:
             if username == "me":
                 username = request.user_data['username']
-            print("username ",username)
             if username == request.user_data['username']:
                 user = models.CustomUser.objects.get(username=username)
                 serialiser = UploadSerializer(user,data=request.data,context={'request': request},partial=True)
                 if serialiser.is_valid():
-                    print("valid serializer")
                     user = serialiser.save()
                     token = remote_login.generate_jwt(user=user,tamp=180)
                     response =  Response({'message': ' updated successfully!',"JWT token":token})
                     response.set_cookie("jwt",token,10800 )
-                    print("saveed succesfully ")
                     return response
                 else:
                     response =  Response({'message': ' passwrd not strong!'})
@@ -334,7 +351,6 @@ def forgot_passwd(request):
         if email :
             try:
                 user = models.CustomUser.objects.get(email=email)
-                print("user",user)
                 remote_login.send_email(user)
                 return Response({"check your Email "},status=200)
             
@@ -346,13 +362,11 @@ def forgot_passwd(request):
 
 @api_view(["POST"])
 def reset_password(request,token):
-    print("from reset fun  token = ",token)
+    print("from reset fun  ")
     if  request.method == 'POST':
         new_password = request.data.get('password')
         if new_password:
-            print("token",token)
             payload = middleware.JWTCheck(token)
-            print("payload",payload)
             if payload:
                     user = models.CustomUser.objects.get(username=payload['username'])
                     serializer = UploadSerializer(user,data=request.data,context={'request': request}, partial=True)

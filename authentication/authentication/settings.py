@@ -138,9 +138,11 @@ AUTH_PASSWORD_VALIDATORS = [
 
 
 
-MEDIA_ROOT = '/Users/yichiba/Desktop/authentication/authentication/accounts/'
-MEDIA_URL = '/media/'
+# MEDIA_ROOT = '/Users/yichiba/Desktop/authentication/authentication/accounts/'
+# MEDIA_URL = '/media/'
 
+MEDIA_URL = 'accounts/media/'
+MEDIA_ROOT = os.path.join(BASE_DIR, 'accounts/media')
 
 
 # Internationalization

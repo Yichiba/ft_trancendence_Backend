@@ -7,7 +7,7 @@ class CustomUser(AbstractUser):
     first_name = models.CharField(max_length = 50)
     last_name = models.CharField(max_length = 50)
     email = models.EmailField(unique=True)
-    profile_picture = models.ImageField(upload_to="media/",default="media/defaults.jpeg",)
+    profile_picture = models.ImageField(upload_to="",default="default.jpg",)
     status = models.BooleanField(default=False)
 
     def __str__(self):

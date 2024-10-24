@@ -17,6 +17,7 @@ Including another URLconf
 from django.urls import path
 from . import views, remote_login
 
+
 urlpatterns = [
     path('', views.home_view.as_view(), name='home'),
     path('home/', views.home_view.as_view(), name='home'),
@@ -36,3 +37,4 @@ urlpatterns = [
     path('friends/',views.get_friends ,name='friend list'),
     path('online/',views.get_online_friends ,name='friend list')
 ]
+

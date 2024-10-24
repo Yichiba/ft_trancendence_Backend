@@ -21,7 +21,6 @@ def requires_authentication(view_func):
     def wrapper(request, *args, **kwargs):
         if args:
             request = args[0]
-        # print("request.user ",request.user)
         if request.is_authenticated :
             return view_func(request, *args, **kwargs)
         return Response({'error': 'Authentication required'}, status=401)
@@ -32,8 +31,6 @@ def requires_authentication(view_func):
 def not_authenticated(view_func):
     @wraps(view_func)
     def wrapper(request, *args, **kwargs):
-        print("not authenticated decorator.")
-
         if args:
             request = args[0]
         if request.is_authenticated :
@@ -61,24 +58,22 @@ def JWTCheck(token):
 class JWTAuthenticationMiddleware(MiddlewareMixin):
     def process_request(self, request):
         from .models import CustomUser
-        print("Processing request in middleware...",request.headers.get('Authorization')
-)
+        print("Processing request in middleware...")
         if 'JWT_token' in request.COOKIES:
             token = request.COOKIES['JWT_token']
-            print("token = ", token)
             payload = JWTCheck(token)
-            print("payload",payload)
             if payload:
                 request.user_data = payload
-                print("here username  ",payload["username"])
-                request.user = CustomUser.objects.get(username= payload['username'])
-                print("here2 ")
-                request.is_authenticated = True
+                try:
+                    request.user = CustomUser.objects.get(username= payload['username'])
+                    request.is_authenticated = True
+                except CustomUser.DoesNotExist:
+                    request.user_data = None
+                    request.is_authenticated = False
             else:
                 request.user_data = None    
                 request.is_authenticated = False
         else:
-            print("No JWT in cookies.")
             request.user_data = None
             request.is_authenticated = False
         print("out of middleware...",  request.is_authenticated)
