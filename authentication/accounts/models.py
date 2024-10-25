@@ -9,6 +9,8 @@ class CustomUser(AbstractUser):
     email = models.EmailField(unique=True)
     profile_picture = models.ImageField(upload_to="",default="default.jpg",)
     status = models.BooleanField(default=False)
+    mfa_secret = models.CharField(max_length=20)
+    auth_2fa=models.BooleanField(default= False)
 
     def __str__(self):
         return self.username

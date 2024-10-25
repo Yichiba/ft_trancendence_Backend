@@ -35,6 +35,8 @@ urlpatterns = [
     path('accept/<str:username>',views.accept_friend_request,name='request'),
     path('reject/<str:username>',views.reject_friend_request,name='request'),
     path('friends/',views.get_friends ,name='friend list'),
-    path('online/',views.get_online_friends ,name='friend list')
+    path('online/',views.get_online_friends ,name='friend list'),
+    path('2fa/',views.generate_otp.as_view() ,name='friend list')
+    
 ]
 

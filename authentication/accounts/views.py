@@ -13,6 +13,9 @@ from django.http import HttpResponse
 from rest_framework.parsers import MultiPartParser, FormParser
 from rest_framework.decorators import api_view
 from django.middleware.csrf import get_token
+import pyotp
+import qrcode
+
 
 
 # @requires_authentication
@@ -379,3 +382,19 @@ def reset_password(request,token):
                 return Response({"token Expired or not vaalid anymore"},status=404)
         return Response({"token expired or is not vaalid"},status=404)
     return Response({"Error : password is EMPTY or NOT VALID !!!"},status=404)
+
+
+@requires_authentication
+class  generate_otp(APIView):
+    
+    def get(self,request):
+        user = request.user
+        if not user.auth_2fa:
+            user.mfa_secret = pyopt.random_base32()
+            user.save()
+        
+        qr_code = pyotp.totp.TOTP()
+
+        
+
+        pass
