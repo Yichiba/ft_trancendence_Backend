@@ -17,7 +17,27 @@ from django.core.mail import send_mail
 import smtplib
 from email.mime.text import MIMEText
 from django.middleware.csrf import get_token
+import urllib.parse
 
+
+def login(request, user):
+    request.user = user
+    print("from login")
+    print("2fa ",user.auth_2fa)
+    print("status ",user.status)
+    if user.auth_2fa and not user.status:
+        user.status = True
+        token  = generate_jwt(user=user,tamp=5)
+        token_query = urllib.parse.urlencode({'token': token})     
+        redirect_url = f'/2fa/?{token_query}'
+        user.save()
+        return redirect(redirect_url)
+    token = generate_jwt(user, tamp=180)
+    csrf_token = get_token(request)
+    response = Response({'message': 'Logged in successfully!'}, status=status.HTTP_200_OK)
+    response.set_cookie("X-CSRFToken", csrf_token)
+    response.set_cookie("JWT_token", token)
+    return response
 
 
 def generateResponse(request, msg, status_code):
@@ -138,12 +158,9 @@ class  callback_with_42(APIView):
                 user_data = fetch_user_data(access_token)
                 user = remote_login(user_data,request)
                 if user :
-                    request.user = user
-                    message = 'Logged in successfully!'
-                    response = generateResponse(request,message,status.HTTP_200_OK)
+                    response = login(request, user)
                     return response
-                else:
-                    return Response({'message': 'Login failed. User not found or invalid.','redirect':'home/'}, status=status.HTTP_400_BAD_REQUEST)
+                return Response({'message': 'Login failed. User not found or invalid.','redirect':'home/'}, status=status.HTTP_400_BAD_REQUEST)
 
             return Response({'message': 'Failed to obtain access token.'}, status=status.HTTP_400_BAD_REQUEST)
 

@@ -186,18 +186,9 @@ class login_view(APIView):
         password = request.data.get('password')
         user = authenticate(username=username, password=password)
         if user is not None:
-            request.user = user
-            if user.auth_2fa:
-                return redirect('2fa')
-            message = 'Logged in successfully!'
-            response = remote_login.generateResponse(request,message,status.HTTP_200_OK)
-            return response
-        else:
-            return Response({'error': 'Invalid credentials'},status=status.HTTP_401_UNAUTHORIZED)
-        
-        
-    # def login(self,request):
-        
+            remote_login.login(request, user)  
+  
+        return Response({'error': 'Invalid credentials'},status=status.HTTP_401_UNAUTHORIZED)        
         
         
 
@@ -219,19 +210,21 @@ class logout_view(APIView):
 
 
 class RegisterView(APIView):
+
     @not_authenticated
     def get(self, request):
+
         return render(request, 'register.html')
+    
     @not_authenticated
     def post(self, request):
+        
         print("from reister_view Fun")
         serializer = RegisterSerializer(data=request.data)
         if serializer.is_valid():
             user = serializer.save()
-            request.user = user
-            message = ' signed and Logged in successfully!'
-            response = remote_login.generateResponse(request,message,status.HTTP_200_OK)            
-            return response
+            if user is not None:
+                remote_login.login(request, user)  
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 class home_view(APIView):
@@ -355,26 +348,21 @@ def reset_password(request,token):
     return Response({"Error : password is EMPTY or NOT VALID !!!"},status=404)
 
 
-import pyotp
-import qrcode
+
 import base64
 from io import BytesIO
-from rest_framework.views import APIView
-from rest_framework.response import Response
-from rest_framework.permissions import IsAuthenticated
 
 class generate_OTP(APIView):
 
     def get(self, request):
         print("from 2fa fun ")
-        if request.user.is_authenticated:
+        if  request.user.is_authenticated:
             user = request.user
-        print("user = ",request.user)
-        if not user.is_authenticated:
-            return Response({"message": "User not found"}, status=404)
-        
+        else:
+            token = request.GET.get('token')
+            payload = middleware.JWTCheck(token=token)
+            user = models.CustomUser.objects.get(username=payload['username'])
         if user.auth_2fa:
-            # Generate a unique MFA secret if the user hasn't set up 2FA
             html = """
             <html>
                 <body>
@@ -393,15 +381,11 @@ class generate_OTP(APIView):
         totp = pyotp.TOTP(user.mfa_secret)
         qr_code_uri = totp.provisioning_uri(name=user.username, issuer_name="tryy")
 
-        # Create a QR code from the URI
         qr = qrcode.make(qr_code_uri)
-        # Save the QR code to an in-memory file-like object
         buffer = BytesIO()
         qr.save(buffer, format="PNG")
-        # Encode the image as base64
         qr_base64 = base64.b64encode(buffer.getvalue()).decode("utf-8")
         
-        # Return the base64-encoded QR code in the response
         return Response({"qr_code": f"data:image/png;base64,{qr_base64}"}, status=200)
 
     def post(self, request):
@@ -412,7 +396,8 @@ class generate_OTP(APIView):
             totp = pyotp.TOTP(user.mfa_secret)
             if totp.verify(otp):
                 if  user.auth_2fa:
-                    remote_login.generateResponse(request,"2FA Approved ",status.HTTP_200_OK)
+                    response=remote_login.generateResponse(request,"2FA Approved ",status.HTTP_200_OK)
+                    return response
                 user.auth_2fa = True
                 user.save()
                 return Response({"message": "2FA enabled"}, status=200)
