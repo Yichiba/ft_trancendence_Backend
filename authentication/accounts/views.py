@@ -15,36 +15,8 @@ from rest_framework.decorators import api_view
 from django.middleware.csrf import get_token
 import pyotp
 import qrcode
+from django.urls import reverse
 
-
-
-# @requires_authentication
-# @api_view(["GET"])
-# def get_online_friends(request):
-#     online = []
-#     try:
-#         # Make a GET request to the 'friends/' API endpoint
-#         response = requests.get(f"{settings.API_BASE_URL}/friends/")
-        
-#         # Check if the request was successful
-#         if response.status_code == 200:
-#             friends = response.json()  # Assuming the response is in JSON format
-            
-#             for friend in friends:
-#                 if friend['status']:
-#                     if friend['user1'] != request.user.username:
-#                         user1 = models.CustomUser.objects.get(username=friend['user1'])
-#                         if user1.status:
-#                             online.insert(0, user1.username)
-#                     else:
-#                         user2 = models.CustomUser.objects.get(username=friend['user2'])
-#                         if user2.status:
-#                             online.insert(0, user2.username)
-#             return Response({"online friends": online}, status=200)
-#         else:
-#             return Response({"error": "Failed to fetch friends"}, status=response.status_code)
-#     except Exception as e:
-#         return Response({"error": str(e)}, status=500)
 
 @requires_authentication
 @api_view(["GET"])
@@ -96,6 +68,11 @@ def change_passwrd(request,username):
 @requires_authentication
 @api_view(["GET"])
 def get_friends(request):
+    
+    
+    
+    friends = models.FriendShip.get_friends(request.user)
+    print("friends========================= = ",friends)
     active_friends = []
     friend_requests = []
     user = request.user
@@ -199,36 +176,30 @@ def reject_friend_request(request, username):
 
 class login_view(APIView):
     def get(self,request):
-        html = """
-        <html>
-            <body>
-            <form method="post" action="/login/">
-                <label for="username">Username:</label><br>
-                <input type="text" id="username" name="username"><br>
-                <label for="password">Password:</label><br>
-                <input type="password" id="password" name="password"><br><br>
-                <input type="submit" value="Submit">
-            </form>
-            </body>
-        </html>
-        """
-        return HttpResponse(html)
-        # print("get login")
-        # message = 'Loggin page '
-        # response = remote_login.generateResponse(request,message,status.HTTP_200_OK)
-        # return response
+        print("get login")
+        message = 'Loggin page '
+        response = remote_login.generateResponse(request,message,status.HTTP_200_OK)
+        return response
     def post(self,request):
         print("from loginView Fun")
         username = request.data.get('username')
         password = request.data.get('password')
         user = authenticate(username=username, password=password)
         if user is not None:
-            message = 'Logged in successfully!'
             request.user = user
+            if user.auth_2fa:
+                return redirect('2fa')
+            message = 'Logged in successfully!'
             response = remote_login.generateResponse(request,message,status.HTTP_200_OK)
             return response
         else:
             return Response({'error': 'Invalid credentials'},status=status.HTTP_401_UNAUTHORIZED)
+        
+        
+    # def login(self,request):
+        
+        
+        
 
 
 class logout_view(APIView):
@@ -384,17 +355,67 @@ def reset_password(request,token):
     return Response({"Error : password is EMPTY or NOT VALID !!!"},status=404)
 
 
-@requires_authentication
-class  generate_otp(APIView):
-    
-    def get(self,request):
+import pyotp
+import qrcode
+import base64
+from io import BytesIO
+from rest_framework.views import APIView
+from rest_framework.response import Response
+from rest_framework.permissions import IsAuthenticated
+
+class generate_OTP(APIView):
+
+    def get(self, request):
+        print("from 2fa fun ")
+        if request.user.is_authenticated:
+            user = request.user
+        print("user = ",request.user)
+        if not user.is_authenticated:
+            return Response({"message": "User not found"}, status=404)
+        
+        if user.auth_2fa:
+            # Generate a unique MFA secret if the user hasn't set up 2FA
+            html = """
+            <html>
+                <body>
+                <form method="post" action="/login/">
+                    <label for="otp-code">otp-code:</label><br>
+                    <input type="text" id="otp-code" name="otp-code"><br>
+                    <input type="submit" value="Submit">
+                </form>
+                </body>
+            </html>
+            """
+            return Response(html)
+        user.mfa_secret = pyotp.random_base32()
+        user.save()
+        
+        totp = pyotp.TOTP(user.mfa_secret)
+        qr_code_uri = totp.provisioning_uri(name=user.username, issuer_name="tryy")
+
+        # Create a QR code from the URI
+        qr = qrcode.make(qr_code_uri)
+        # Save the QR code to an in-memory file-like object
+        buffer = BytesIO()
+        qr.save(buffer, format="PNG")
+        # Encode the image as base64
+        qr_base64 = base64.b64encode(buffer.getvalue()).decode("utf-8")
+        
+        # Return the base64-encoded QR code in the response
+        return Response({"qr_code": f"data:image/png;base64,{qr_base64}"}, status=200)
+
+    def post(self, request):
         user = request.user
-        if not user.auth_2fa:
-            user.mfa_secret = pyopt.random_base32()
-            user.save()
-        
-        qr_code = pyotp.totp.TOTP()
-
-        
-
-        pass
+        otp = request.data.get('otp')
+        if otp:
+            # Verify the OTP
+            totp = pyotp.TOTP(user.mfa_secret)
+            if totp.verify(otp):
+                if  user.auth_2fa:
+                    remote_login.generateResponse(request,"2FA Approved ",status.HTTP_200_OK)
+                user.auth_2fa = True
+                user.save()
+                return Response({"message": "2FA enabled"}, status=200)
+            else:
+                return Response({"message": "Invalid OTP"}, status=400)
+        return Response({"message": "OTP is required"}, status=400)

@@ -130,7 +130,8 @@ class  callback_with_42(APIView):
                 'redirect_uri': settings.REDIRECT_URI,
                 'code': code
             }
-            response = requests.post(token_url, data=payload)
+            print("payload",payload)
+            response = requests.post(token_url, json=payload)
             print("response",response.status_code)
             if response.status_code == 200:
                 access_token = response.json().get('access_token')

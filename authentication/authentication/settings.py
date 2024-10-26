@@ -28,7 +28,7 @@ EMAIL_HOST_PASSWORD = 'aehm cobk lhfd fevc'
 
 
 UID = 'u-s4t2ud-bc003f1775049ebfca3f8234618b880c4312974bb58efd39804add946dd1214e'
-SECRET = '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'
+SECRET = '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'
 REDIRECT_URI = 'http://127.0.0.1:8000/login/42/callback/'
 
 JWT_SECRET_KEY="yichiba94@"
