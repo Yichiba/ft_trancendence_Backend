@@ -68,9 +68,6 @@ def change_passwrd(request,username):
 @requires_authentication
 @api_view(["GET"])
 def get_friends(request):
-    
-    
-    
     friends = models.FriendShip.get_friends(request.user)
     print("friends========================= = ",friends)
     active_friends = []
@@ -186,7 +183,8 @@ class login_view(APIView):
         password = request.data.get('password')
         user = authenticate(username=username, password=password)
         if user is not None:
-            remote_login.login(request, user)  
+            response = remote_login.login(request, user)
+            return response 
   
         return Response({'error': 'Invalid credentials'},status=status.HTTP_401_UNAUTHORIZED)        
         
@@ -224,7 +222,8 @@ class RegisterView(APIView):
         if serializer.is_valid():
             user = serializer.save()
             if user is not None:
-                remote_login.login(request, user)  
+                response = remote_login.login(request, user)
+                return response  
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 class home_view(APIView):
@@ -279,30 +278,33 @@ class users(APIView):
             return response
         except models.CustomUser.DoesNotExist:
             return Response({'error': f'User {username} not found!'}, status=404)
+        
+        
     @requires_authentication
     def post(self, request, username):
         response = Response()
-        try:
-            if username == "me":
-                username = request.user_data['username']
+        
+        if username == "me":
+            username = request.user_data['username']
             if username == request.user_data['username']:
-                user = models.CustomUser.objects.get(username=username)
-                serialiser = UploadSerializer(user,data=request.data,context={'request': request},partial=True)
-                if serialiser.is_valid():
-                    user = serialiser.save()
-                    token = remote_login.generate_jwt(user=user,tamp=180)
-                    response =  Response({'message': ' updated successfully!',"JWT token":token})
-                    response.set_cookie("jwt",token,10800 )
-                    return response
+                try:
+                    user = models.CustomUser.objects.get(username=username)
+                    serialiser = UploadSerializer(user,data=request.data,context={'request': request},partial=True)
+                    if serialiser.is_valid():
+                        user = serialiser.save()
+                        token = remote_login.generate_jwt(user=user,tamp=180)
+                        response =  Response({'message': ' updated successfully!',"JWT token":token})
+                        response.set_cookie("jwt",token,10800 )
+                        return response
+                    else:
+                        response =  Response({'message': ' passwrd not strong!'})
+                        return response                
+                        
+                except models.CustomUser.DoesNotExist:
+                    return Response({'error': f'User {username} not found!'}, status=404)
                 else:
-                    response =  Response({'message': ' passwrd not strong!'})
+                    response =  Response({'message': ' not authorized to modify this user!'})
                     return response                
-                    
-            else:
-                response =  Response({'message': ' not authorized to modify this user!'})
-                return response                
-        except models.CustomUser.DoesNotExist:
-            return Response({'error': f'User {username} not found!'}, status=404)
 
 
 
@@ -353,31 +355,43 @@ import base64
 from io import BytesIO
 
 class generate_OTP(APIView):
+    def get_user_from_request(self, request):
+        """Helper method to get user from either authentication or token"""
+        if request.is_authenticated:
+            return request.user
+            
+        token = request.GET.get('token')
+        if not token:
+            raise ValidationError("No authentication provided")
+            
+        try:
+            payload = middleware.JWTCheck(token=token)
+            return models.CustomUser.objects.get(username=payload['username'])
+        except Exception as e:
+            raise ValidationError("Invalid token")
+        
+        
+    def generate_qr_code(self, secret, username):
+        """Generate QR code for 2FA setup"""
+        totp = pyotp.TOTP(secret)
+        provisioning_uri = totp.provisioning_uri(
+            name=username,
+            issuer_name="YourApp"
+        )
 
+        qr = qrcode.make(provisioning_uri)
+        buffer = BytesIO()
+        qr.save(buffer, format="PNG")
+        return base64.b64encode(buffer.getvalue()).decode("utf-8")
     def get(self, request):
         print("from 2fa fun ")
-        if  request.user.is_authenticated:
-            user = request.user
-        else:
-            token = request.GET.get('token')
-            payload = middleware.JWTCheck(token=token)
-            user = models.CustomUser.objects.get(username=payload['username'])
+        user = self.get_user_from_request(request)
+        if not user:
+            return Response({"message": "Invalid token"}, status=400)
         if user.auth_2fa:
-            html = """
-            <html>
-                <body>
-                <form method="post" action="/login/">
-                    <label for="otp-code">otp-code:</label><br>
-                    <input type="text" id="otp-code" name="otp-code"><br>
-                    <input type="submit" value="Submit">
-                </form>
-                </body>
-            </html>
-            """
-            return Response(html)
+            return Response({"message": "otp code input"}, status=400)
         user.mfa_secret = pyotp.random_base32()
         user.save()
-        
         totp = pyotp.TOTP(user.mfa_secret)
         qr_code_uri = totp.provisioning_uri(name=user.username, issuer_name="tryy")
 
@@ -389,14 +403,17 @@ class generate_OTP(APIView):
         return Response({"qr_code": f"data:image/png;base64,{qr_base64}"}, status=200)
 
     def post(self, request):
-        user = request.user
+        user=self.get_user_from_request(request)
+        if not user:
+            return Response({"message": "Invalid token"}, status=400)
         otp = request.data.get('otp')
         if otp:
             # Verify the OTP
             totp = pyotp.TOTP(user.mfa_secret)
             if totp.verify(otp):
                 if  user.auth_2fa:
-                    response=remote_login.generateResponse(request,"2FA Approved ",status.HTTP_200_OK)
+                    response=remote_login.login(request,user)
+                    print("response = all goood :")
                     return response
                 user.auth_2fa = True
                 user.save()

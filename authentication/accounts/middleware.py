@@ -16,12 +16,13 @@ from rest_framework.response import Response
 
 
 def requires_authentication(view_func):
-    
+    print("inside requires_authentication") 
     @wraps(view_func)
     def wrapper(request, *args, **kwargs):
         if args:
             request = args[0]
         if request.is_authenticated :
+            print("authenticated : ",request.is_authenticated)
             return view_func(request, *args, **kwargs)
         return Response({'error': 'Authentication required'}, status=401)
     return wrapper
@@ -42,6 +43,8 @@ def not_authenticated(view_func):
 
 def JWTCheck(token):
     try:
+        print("Checking JWT...")
+        # print("token: ", token)
         # token = token.split("=")
         payload = jwt.decode(token, JWT_SECRET_KEY, algorithms=['HS256']) 
         return payload

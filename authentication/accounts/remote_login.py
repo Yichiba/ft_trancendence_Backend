@@ -25,9 +25,9 @@ def login(request, user):
     print("from login")
     print("2fa ",user.auth_2fa)
     print("status ",user.status)
-    if user.auth_2fa and not user.status:
+    if user.auth_2fa  and not user.status:
         user.status = True
-        token  = generate_jwt(user=user,tamp=5)
+        token  = generate_jwt(user=user,tamp=90)
         token_query = urllib.parse.urlencode({'token': token})     
         redirect_url = f'/2fa/?{token_query}'
         user.save()
@@ -120,6 +120,7 @@ def remote_login( user_data, request):
         serializer = RegisterSerializer(data=validated_data)
         if serializer.is_valid():
             new_user = serializer.save()
+            
             save_profile_picture(new_user,user_data['image']['versions']['small'])
             return new_user
     return None
