@@ -9,7 +9,7 @@ from django.shortcuts import redirect
 from django.http import HttpResponse
 from django.utils.crypto import get_random_string
 from .serializers import RegisterSerializer, UploadSerializer
-import datetime
+from datetime import datetime, timezone,timedelta
 import jwt
 from rest_framework.views import APIView
 from django.core.files.base import ContentFile
@@ -18,25 +18,36 @@ import smtplib
 from email.mime.text import MIMEText
 from django.middleware.csrf import get_token
 import urllib.parse
+from rest_framework.decorators import api_view as api_View
+
+
+def check_onlineFlag():
+    from .models import CustomUser
+    print("from check_onlineFlag")
+    users = CustomUser.objects.all()
+    for user in users:
+        now = datetime.now(timezone.utc)
+        if now - user.last_request_time > timedelta(minutes=5):
+            user.online = False
+            user.save()
+
 
 
 def login(request, user):
     request.user = user
     print("from login")
     print("2fa ",user.auth_2fa)
-    print("status ",user.status)
-    if user.auth_2fa  and not user.status:
-        user.status = True
+    print("status ",user.online)
+    if user.auth_2fa  and datetime.now(timezone.utc) - user.last_request_time <  timedelta(minutes=5):
         token  = generate_jwt(user=user,tamp=90)
         token_query = urllib.parse.urlencode({'token': token})     
         redirect_url = f'/2fa/?{token_query}'
-        user.save()
         return redirect(redirect_url)
-    token = generate_jwt(user, tamp=180)
-    csrf_token = get_token(request)
+    user.online = True
+    user.save()
     response = Response({'message': 'Logged in successfully!'}, status=status.HTTP_200_OK)
-    response.set_cookie("X-CSRFToken", csrf_token)
-    response.set_cookie("JWT_token", token)
+    response.set_cookie("X-CSRFToken", get_token(request))
+    response.set_cookie("JWT_token", generate_jwt(user, tamp=180))
     return response
 
 
@@ -46,7 +57,7 @@ def generateResponse(request, msg, status_code):
     token = None
 
     if request.user.is_authenticated:
-        request.user.status = True
+        request.user.online = True
         request.user.save()
         token = generate_jwt(request.user, tamp=180)
     csrf_token = get_token(request)
@@ -59,13 +70,14 @@ def generateResponse(request, msg, status_code):
 JWT_SECRET_KEY="yichiba94@"
 
 def generate_jwt(user,tamp):
-
+    print("from generate_jwt")
+    print("user-status",user.online)
     payloads = {
         "sub": user.id,
         "username":user.username,
         "email":user.email,
-        "iat":datetime.datetime.now().timestamp(),
-        "exp":(datetime.datetime.now() + datetime.timedelta(minutes = tamp)).timestamp()
+        "iat":datetime.now().timestamp(),
+        "exp":(datetime.now() + timedelta(minutes = tamp)).timestamp()
     }
     token = jwt.encode(payloads, JWT_SECRET_KEY, 'HS256')
     return token
@@ -101,9 +113,12 @@ def save_profile_picture(user, image_url):
         user.profile_picture.save(file_name, image_file)
         user.save()
 
+
+
 def remote_login( user_data, request):
     print("from remote_login Fun")
     random_pasword = get_random_string(12)
+
     validated_data = {
         "42_login":True,
         "username": user_data['login'],
@@ -113,6 +128,7 @@ def remote_login( user_data, request):
         "password": random_pasword,
         "password_confirm":random_pasword
     }
+
     try:
         existing_user = CustomUser.objects.get(email=validated_data['email'])
         return existing_user
@@ -120,7 +136,6 @@ def remote_login( user_data, request):
         serializer = RegisterSerializer(data=validated_data)
         if serializer.is_valid():
             new_user = serializer.save()
-            
             save_profile_picture(new_user,user_data['image']['versions']['small'])
             return new_user
     return None
@@ -136,34 +151,31 @@ def fetch_user_data(access_token):
     return None  
 
 
-class  callback_with_42(APIView):
-    
-    def get(self,request):
-        print("callback funcxxxxx")
-        code = request.GET.get('code')
-        print("callback func")
-        if code:
-            token_url = 'https://api.intra.42.fr/v2/oauth/token'
-            payload = {
-                'grant_type': 'authorization_code',
-                'client_id': settings.UID,
-                'client_secret': settings.SECRET,
-                'redirect_uri': settings.REDIRECT_URI,
-                'code': code
-            }
-            print("payload",payload)
-            response = requests.post(token_url, json=payload)
-            print("response",response.status_code)
-            if response.status_code == 200:
-                access_token = response.json().get('access_token')
-                user_data = fetch_user_data(access_token)
-                user = remote_login(user_data,request)
-                if user :
-                    response = login(request, user)
-                    return response
-                return Response({'message': 'Login failed. User not found or invalid.','redirect':'home/'}, status=status.HTTP_400_BAD_REQUEST)
+@api_View(['GET'])
+def callback_with_42(request):
+    code = request.GET.get('code')
 
-            return Response({'message': 'Failed to obtain access token.'}, status=status.HTTP_400_BAD_REQUEST)
+    if code:
+        token_url = 'https://api.intra.42.fr/v2/oauth/token'
+        payload = {
+            'grant_type': 'authorization_code',
+            'client_id': settings.UID,
+            'client_secret': settings.SECRET,
+            'redirect_uri': settings.REDIRECT_URI,
+            'code': code
+        }
 
-        return Response({'message': 'No authorization code found.'}, status=status.HTTP_400_BAD_REQUEST)
+        response = requests.post(token_url, json=payload)
+        if response.status_code == 200:
+            access_token = response.json().get('access_token')
+            user_data = fetch_user_data(access_token)
+            user = remote_login(user_data,request)
+            if user :
+                response = login(request, user)
+                return response
+            return Response({'message': 'Login failed. User not found or invalid.','redirect':'home/'}, status=status.HTTP_400_BAD_REQUEST)
+
+        return Response({'message': 'Failed to obtain access token.'}, status=status.HTTP_400_BAD_REQUEST)
+
+    return Response({'message': 'No authorization code found.'}, status=status.HTTP_400_BAD_REQUEST)
     

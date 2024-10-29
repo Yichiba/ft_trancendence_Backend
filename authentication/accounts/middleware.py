@@ -9,6 +9,7 @@ from django.shortcuts import redirect
 from django.contrib import messages
 
 
+
 JWT_SECRET_KEY = "yichiba94@"
 
 from functools import wraps
@@ -56,6 +57,9 @@ def JWTCheck(token):
     except jwt.InvalidTokenError:
         print("Invalid token.")
         return None
+# from .models import CustomUser
+
+
 
 
 class JWTAuthenticationMiddleware(MiddlewareMixin):
@@ -69,6 +73,10 @@ class JWTAuthenticationMiddleware(MiddlewareMixin):
                 request.user_data = payload
                 try:
                     request.user = CustomUser.objects.get(username= payload['username'])
+                    request.user.last_request_time = datetime.now()
+                    if not request.user.online:
+                        request.user.online = True
+                    request.user.save()
                     request.is_authenticated = True
                 except CustomUser.DoesNotExist:
                     request.user_data = None

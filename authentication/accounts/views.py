@@ -13,6 +13,7 @@ from django.http import HttpResponse
 from rest_framework.parsers import MultiPartParser, FormParser
 from rest_framework.decorators import api_view
 from django.middleware.csrf import get_token
+from datetime import datetime, timezone,timedelta
 import pyotp
 import qrcode
 from django.urls import reverse
@@ -21,28 +22,17 @@ from django.urls import reverse
 @requires_authentication
 @api_view(["GET"])
 def get_online_friends(request):
+    print("from get_online_friends")
     online = []
-    i = 0
     try:
-        friends = models.FriendShip.objects.filter(user1=request.user) | models.FriendShip.objects.filter(user2=request.user)
+        remote_login.check_onlineFlag()
+        friends = models.FriendShip.get_friends(request.user)
         for friend in friends:
-            i = i  +1
-            if friend.status:
-                if friend.user1.username != request.user.username:
-                    user = models.CustomUser.objects.get(username=friend.user1.username)
-                    if user.status:
-                        online.insert(0,user.username)
-                else:
-                    user = models.CustomUser.objects.get(username=friend.user2.username)
-                    if user.status:
-                        online.insert(0,user.username)
+            if friend.online:
+                online.insert(0,friend.username)
         return Response({f" online friend :{online}"}, status=200)
     except:
-        return Response({" error : friends  dsosenr exisr "}, status=404)
-
-
-
-
+        return Response({" error : you have no friends online at the moment . "}, status=404)
 
 
 @api_view(['POST',"GET"])
@@ -194,13 +184,13 @@ class login_view(APIView):
 class logout_view(APIView):
     @requires_authentication
     def post(self, request):
-        state = request.user.status
-        request.user.status = False
+        state = request.user.online
+        request.user.online = False
         request.user.save()
         user = models.CustomUser.objects.get(username=request.user.username)
         
         logout(request=request)
-        response = Response({'message': f'Logged out successfully!  status = {user.status}  old state {state}'},status=status.HTTP_200_OK)
+        response = Response({'message': f'Logged out successfully!  status = {user.online}  old state {state}'},status=status.HTTP_200_OK)
         response.delete_cookie('JWT_token')
         response.delete_cookie("X-CSRFToken")
         return response
@@ -273,6 +263,7 @@ class users(APIView):
                 "username":user.username,
                 "email": user.email,
                 "lastname": user.last_name,
+                "status" : user.online,
                 "profile_picture": request.build_absolute_uri(img_url)
             })
             return response
@@ -302,9 +293,9 @@ class users(APIView):
                         
                 except models.CustomUser.DoesNotExist:
                     return Response({'error': f'User {username} not found!'}, status=404)
-                else:
-                    response =  Response({'message': ' not authorized to modify this user!'})
-                    return response                
+            else:
+                response =  Response({'message': ' not authorized to modify this user!'})
+                return response                
 
 
 
@@ -353,6 +344,7 @@ def reset_password(request,token):
 
 import base64
 from io import BytesIO
+from rest_framework.exceptions import ValidationError
 
 class generate_OTP(APIView):
     def get_user_from_request(self, request):
@@ -383,6 +375,7 @@ class generate_OTP(APIView):
         buffer = BytesIO()
         qr.save(buffer, format="PNG")
         return base64.b64encode(buffer.getvalue()).decode("utf-8")
+    
     def get(self, request):
         print("from 2fa fun ")
         user = self.get_user_from_request(request)
@@ -407,6 +400,7 @@ class generate_OTP(APIView):
         if not user:
             return Response({"message": "Invalid token"}, status=400)
         otp = request.data.get('otp')
+        print("otp = ",otp)
         if otp:
             # Verify the OTP
             totp = pyotp.TOTP(user.mfa_secret)
@@ -415,6 +409,8 @@ class generate_OTP(APIView):
                     response=remote_login.login(request,user)
                     print("response = all goood :")
                     return response
+                
+                print("nnnnnsnsnsn :")
                 user.auth_2fa = True
                 user.save()
                 return Response({"message": "2FA enabled"}, status=200)
