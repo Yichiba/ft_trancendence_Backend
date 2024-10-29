@@ -34,3 +34,16 @@ class   FriendShip(models.Model):
         )
         friends = [f.user2 if f.user1 == user else f.user1 for f in friendships]
         return friends
+    
+    
+    
+    
+    
+    @classmethod
+    def get_friend_requests(cls, user):
+        """Get all friends for a user."""
+        friendships = cls.objects.filter(
+            Q(user2=user) & Q(status=False)
+        )
+        friends = [f.user2 if f.user1 == user else f.user1 for f in friendships]
+        return friends

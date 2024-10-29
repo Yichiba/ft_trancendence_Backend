@@ -34,17 +34,17 @@ def check_onlineFlag():
 
 
 def login(request, user):
-    request.user = user
     print("from login")
     print("2fa ",user.auth_2fa)
     print("status ",user.online)
-    if user.auth_2fa  and datetime.now(timezone.utc) - user.last_request_time <  timedelta(minutes=5):
+    if user.auth_2fa and not user.online:
         token  = generate_jwt(user=user,tamp=90)
         token_query = urllib.parse.urlencode({'token': token})     
         redirect_url = f'/2fa/?{token_query}'
         return redirect(redirect_url)
     user.online = True
     user.save()
+    request.user = user
     response = Response({'message': 'Logged in successfully!'}, status=status.HTTP_200_OK)
     response.set_cookie("X-CSRFToken", get_token(request))
     response.set_cookie("JWT_token", generate_jwt(user, tamp=180))

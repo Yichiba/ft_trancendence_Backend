@@ -1,25 +1,20 @@
-import requests
 from . import serializers, remote_login, models, middleware
-from .middleware import requires_authentication, not_authenticated
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
-from django.contrib.auth import authenticate, login, logout
-from .serializers import RegisterSerializer, UploadSerializer
+from django.contrib.auth import authenticate, logout
 from django.conf import settings
 from django.shortcuts import redirect, render
-import urllib.parse
-from django.http import HttpResponse
 from rest_framework.parsers import MultiPartParser, FormParser
 from rest_framework.decorators import api_view
-from django.middleware.csrf import get_token
-from datetime import datetime, timezone,timedelta
 import pyotp
 import qrcode
-from django.urls import reverse
+import base64
+from io import BytesIO
+from rest_framework.exceptions import ValidationError
 
 
-@requires_authentication
+@middleware.requires_authentication
 @api_view(["GET"])
 def get_online_friends(request):
     print("from get_online_friends")
@@ -47,7 +42,7 @@ def change_passwrd(request,username):
         new_password = request.data.get('password')
         if new_password:
             user = models.CustomUser.objects.get(username=username)
-            serializer = UploadSerializer(user,data=request.data,context={'request': request}, partial=True)
+            serializer = serializers.UploadSerializer(user,data=request.data,context={'request': request}, partial=True)
             if serializer.is_valid():
                 user = serializer.save()
                 return Response({"password changed successfully"},status=200)
@@ -55,13 +50,15 @@ def change_passwrd(request,username):
                 return Response({"Error : password is EMPTY or NOT VALID !!!"},status=404)
         return Response({"Error : password is EMPTY or NOT VALID !!!"},status=404)
     
-@requires_authentication
+@middleware.requires_authentication
 @api_view(["GET"])
 def get_friends(request):
-    friends = models.FriendShip.get_friends(request.user)
-    print("friends========================= = ",friends)
+    print("from get_friends")
     active_friends = []
     friend_requests = []
+    # active_friends = models.FriendShip.get_friends(request.user)
+    # friend_requests = models.FriendShip.get_friend_requests(request.user)
+    # return Response(f"friends:{active_friends} ..."f"     friends_request:{friend_requests}",status=200)
     user = request.user
     try:
         friends = models.FriendShip.objects.filter(user1=user) | models.FriendShip.objects.filter(user2=user)
@@ -73,9 +70,7 @@ def get_friends(request):
                     else:
                         active_friends.insert(0,friend.user1.username)
                 else:
-                    if friend.user1 == user:
-                        friend_requests.insert(0,friend.user2.username)
-                    else:
+                    if friend.user2 == user:
                         friend_requests.insert(0,friend.user1.username)
             return Response(f"friends:{active_friends} ..."f"     friends_request:{friend_requests}",status=200)
         else:
@@ -86,7 +81,7 @@ def get_friends(request):
     
     
     
-@requires_authentication
+@middleware.requires_authentication
 @api_view(["POST"])
 def send_friend_request(request, username):
     user1 = request.user
@@ -95,7 +90,6 @@ def send_friend_request(request, username):
         user2 = models.CustomUser.objects.get(username=username)
         
         if user1 != user2:
-            
             try:
                 
                 existing_friendship = models.FriendShip.objects.get(user1=user1,user2=user2)
@@ -122,7 +116,7 @@ def send_friend_request(request, username):
     
     
 @api_view(["POST"])
-@requires_authentication
+@middleware.requires_authentication
 def accept_friend_request(request, username):
     user1 = request.user
     try:
@@ -141,7 +135,7 @@ def accept_friend_request(request, username):
         return Response({"message": "User not found"}, status=404)
 
 @api_view(["POST"])
-@requires_authentication
+@middleware.requires_authentication
 def reject_friend_request(request, username):
     user1 = request.user
     try:
@@ -182,7 +176,7 @@ class login_view(APIView):
 
 
 class logout_view(APIView):
-    @requires_authentication
+    @middleware.requires_authentication
     def post(self, request):
         state = request.user.online
         request.user.online = False
@@ -199,16 +193,16 @@ class logout_view(APIView):
 
 class RegisterView(APIView):
 
-    @not_authenticated
+    @middleware.not_authenticated
     def get(self, request):
 
         return render(request, 'register.html')
     
-    @not_authenticated
+    @middleware.not_authenticated
     def post(self, request):
         
         print("from reister_view Fun")
-        serializer = RegisterSerializer(data=request.data)
+        serializer = serializers.RegisterSerializer(data=request.data)
         if serializer.is_valid():
             user = serializer.save()
             if user is not None:
@@ -217,7 +211,7 @@ class RegisterView(APIView):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 class home_view(APIView):
-    @requires_authentication
+    @middleware.requires_authentication
     def get(self,request):
         return Response("Home page",status=status.HTTP_200_OK)
 
@@ -250,7 +244,7 @@ class profile(APIView):
 class users(APIView):
     parser_classes = (MultiPartParser, FormParser)
 
-    @requires_authentication
+    @middleware.requires_authentication
     def get(self, request, username):
         try:
             if username == "me":
@@ -271,7 +265,7 @@ class users(APIView):
             return Response({'error': f'User {username} not found!'}, status=404)
         
         
-    @requires_authentication
+    @middleware.requires_authentication
     def post(self, request, username):
         response = Response()
         
@@ -280,7 +274,7 @@ class users(APIView):
             if username == request.user_data['username']:
                 try:
                     user = models.CustomUser.objects.get(username=username)
-                    serialiser = UploadSerializer(user,data=request.data,context={'request': request},partial=True)
+                    serialiser = serializers.UploadSerializer(user,data=request.data,context={'request': request},partial=True)
                     if serialiser.is_valid():
                         user = serialiser.save()
                         token = remote_login.generate_jwt(user=user,tamp=180)
@@ -329,7 +323,7 @@ def reset_password(request,token):
             payload = middleware.JWTCheck(token)
             if payload:
                     user = models.CustomUser.objects.get(username=payload['username'])
-                    serializer = UploadSerializer(user,data=request.data,context={'request': request}, partial=True)
+                    serializer = serializers.UploadSerializer(user,data=request.data,context={'request': request}, partial=True)
                     if serializer.is_valid():
                         user = serializer.save()
                         return Response({"password changed successfully"},status=200)
@@ -342,13 +336,9 @@ def reset_password(request,token):
 
 
 
-import base64
-from io import BytesIO
-from rest_framework.exceptions import ValidationError
-
 class generate_OTP(APIView):
+
     def get_user_from_request(self, request):
-        """Helper method to get user from either authentication or token"""
         if request.is_authenticated:
             return request.user
             
@@ -362,13 +352,12 @@ class generate_OTP(APIView):
         except Exception as e:
             raise ValidationError("Invalid token")
         
-        
+
     def generate_qr_code(self, secret, username):
-        """Generate QR code for 2FA setup"""
         totp = pyotp.TOTP(secret)
         provisioning_uri = totp.provisioning_uri(
             name=username,
-            issuer_name="YourApp"
+            issuer_name="Transcendence 42 :Baraka_3lia "
         )
 
         qr = qrcode.make(provisioning_uri)
@@ -377,12 +366,9 @@ class generate_OTP(APIView):
         return base64.b64encode(buffer.getvalue()).decode("utf-8")
     
     def get(self, request):
-        print("from 2fa fun ")
         user = self.get_user_from_request(request)
-        if not user:
-            return Response({"message": "Invalid token"}, status=400)
         if user.auth_2fa:
-            return Response({"message": "otp code input"}, status=400)
+            return Response({"message": " insert otp code "}, status=400)
         user.mfa_secret = pyotp.random_base32()
         user.save()
         totp = pyotp.TOTP(user.mfa_secret)
@@ -400,17 +386,16 @@ class generate_OTP(APIView):
         if not user:
             return Response({"message": "Invalid token"}, status=400)
         otp = request.data.get('otp')
-        print("otp = ",otp)
         if otp:
             # Verify the OTP
             totp = pyotp.TOTP(user.mfa_secret)
             if totp.verify(otp):
                 if  user.auth_2fa:
                     response=remote_login.login(request,user)
-                    print("response = all goood :")
+                    user.online = True
+                    user.save()
                     return response
-                
-                print("nnnnnsnsnsn :")
+
                 user.auth_2fa = True
                 user.save()
                 return Response({"message": "2FA enabled"}, status=200)

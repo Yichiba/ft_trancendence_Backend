@@ -7,6 +7,8 @@ from rest_framework.response import Response
 from rest_framework import status
 from django.shortcuts import redirect
 from django.contrib import messages
+from rest_framework.renderers import JSONRenderer
+
 
 
 
@@ -23,9 +25,13 @@ def requires_authentication(view_func):
         if args:
             request = args[0]
         if request.is_authenticated :
-            print("authenticated : ",request.is_authenticated)
             return view_func(request, *args, **kwargs)
-        return Response({'error': 'Authentication required'}, status=401)
+        else:
+            response = Response({'error': 'Authentication required'}, status=401)
+            response.accepted_renderer = JSONRenderer()
+            response.renderer_context = {'request': request}
+            response.accepted_media_type = 'application/json'
+            return response
     return wrapper
 
 
@@ -45,8 +51,6 @@ def not_authenticated(view_func):
 def JWTCheck(token):
     try:
         print("Checking JWT...")
-        # print("token: ", token)
-        # token = token.split("=")
         payload = jwt.decode(token, JWT_SECRET_KEY, algorithms=['HS256']) 
         return payload
     
@@ -57,7 +61,6 @@ def JWTCheck(token):
     except jwt.InvalidTokenError:
         print("Invalid token.")
         return None
-# from .models import CustomUser
 
 
 
