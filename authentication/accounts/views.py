@@ -11,6 +11,7 @@ import pyotp
 import qrcode
 import base64
 from io import BytesIO
+from django.urls import reverse
 from rest_framework.exceptions import ValidationError
 
 
@@ -166,6 +167,7 @@ class login_view(APIView):
         username = request.data.get('username')
         password = request.data.get('password')
         user = authenticate(username=username, password=password)
+        print("username and ppasswordaa",username,password)
         if user is not None:
             response = remote_login.login(request, user)
             return response 

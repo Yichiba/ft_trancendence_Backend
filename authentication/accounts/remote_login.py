@@ -42,10 +42,10 @@ def login(request, user):
         token_query = urllib.parse.urlencode({'token': token})     
         redirect_url = f'/2fa/?{token_query}'
         return redirect(redirect_url)
+    response = Response({'success': True,'message': 'Logged in successfully!'}, status=status.HTTP_200_OK)
     user.online = True
     user.save()
     request.user = user
-    response = Response({'message': 'Logged in successfully!'}, status=status.HTTP_200_OK)
     response.set_cookie("X-CSRFToken", get_token(request))
     response.set_cookie("JWT_token", generate_jwt(user, tamp=180))
     return response
