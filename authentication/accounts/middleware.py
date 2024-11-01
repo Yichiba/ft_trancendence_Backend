@@ -42,6 +42,7 @@ def not_authenticated(view_func):
         if args:
             request = args[0]
         if request.is_authenticated :
+            print("you are already logged in !!!'")
             messages.info(request,'you are already logged in !!!')
             return redirect("home")
         return view_func(request, *args, **kwargs)
@@ -70,6 +71,7 @@ class JWTAuthenticationMiddleware(MiddlewareMixin):
         from .models import CustomUser
         print("Processing request in middleware...")
         if 'JWT_token' in request.COOKIES:
+            print("JWT_token found in request...")
             token = request.COOKIES['JWT_token']
             payload = JWTCheck(token)
             if payload:
@@ -88,6 +90,7 @@ class JWTAuthenticationMiddleware(MiddlewareMixin):
                 request.user_data = None    
                 request.is_authenticated = False
         else:
+            print("JWT_token not found in request...")
             request.user_data = None
             request.is_authenticated = False
         print("out of middleware...",  request.is_authenticated)

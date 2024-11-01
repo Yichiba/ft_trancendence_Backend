@@ -155,13 +155,13 @@ def reject_friend_request(request, username):
     except models.CustomUser.DoesNotExist:
         return Response({"message": "User not found"}, status=404)
 
-
 class login_view(APIView):
     def get(self,request):
         print("get login")
         message = 'Loggin page '
         response = remote_login.generateResponse(request,message,status.HTTP_200_OK)
         return response
+    # @middleware.not_authenticated
     def post(self,request):
         print("from loginView Fun")
         username = request.data.get('username')
@@ -388,13 +388,15 @@ class generate_OTP(APIView):
         if not user:
             return Response({"message": "Invalid token"}, status=400)
         otp = request.data.get('otp')
+        print("otp = ",otp)
         if otp:
             # Verify the OTP
             totp = pyotp.TOTP(user.mfa_secret)
             if totp.verify(otp):
+                print("otp verified")
                 if  user.auth_2fa:
-                    response=remote_login.login(request,user)
                     user.online = True
+                    response=remote_login.login(request,user)
                     user.save()
                     return response
 

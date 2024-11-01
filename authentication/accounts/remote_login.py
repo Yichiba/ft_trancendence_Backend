@@ -46,8 +46,9 @@ def login(request, user):
     user.online = True
     user.save()
     request.user = user
-    response.set_cookie("X-CSRFToken", get_token(request))
-    response.set_cookie("JWT_token", generate_jwt(user, tamp=180))
+    response.set_cookie("X-CSRFToken", get_token(request), httponly=False)
+    response.set_cookie("JWT_token", generate_jwt(user, tamp=180), httponly=False)
+
     return response
 
 
@@ -171,6 +172,7 @@ def callback_with_42(request):
             user_data = fetch_user_data(access_token)
             user = remote_login(user_data,request)
             if user :
+                return redirect('http://127.0.0.1:5500/home/')
                 response = login(request, user)
                 return response
             return Response({'message': 'Login failed. User not found or invalid.','redirect':'home/'}, status=status.HTTP_400_BAD_REQUEST)
