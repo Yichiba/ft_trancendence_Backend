@@ -13,6 +13,7 @@ import base64
 from io import BytesIO
 from django.urls import reverse
 from rest_framework.exceptions import ValidationError
+import requests
 
 
 @middleware.requires_authentication
@@ -50,7 +51,9 @@ def change_passwrd(request,username):
             else:
                 return Response({"Error : password is EMPTY or NOT VALID !!!"},status=404)
         return Response({"Error : password is EMPTY or NOT VALID !!!"},status=404)
-    
+
+
+
 @middleware.requires_authentication
 @api_view(["GET"])
 def get_friends(request):
@@ -67,13 +70,13 @@ def get_friends(request):
             for friend in friends:
                 if friend.status == True:
                     if friend.user1 == user:
-                        active_friends.insert(0,friend.user2.username)
+                        active_friends.insert(0,get_json_data(friend.user2))
                     else:
                         active_friends.insert(0,friend.user1.username)
                 else:
                     if friend.user2 == user:
                         friend_requests.insert(0,friend.user1.username)
-            return Response(f"friends:{active_friends} ..."f"     friends_request:{friend_requests}",status=200)
+            return Response(active_friends, status=200)
         else:
             return Response({"message": "nothing "}, status=200)
    

@@ -37,6 +37,7 @@ def login(request, user):
     print("from login")
     print("2fa ",user.auth_2fa)
     print("status ",user.online)
+    user.online = True
     if user.auth_2fa and not user.online:
         token  = generate_jwt(user=user,tamp=90)
         token_query = urllib.parse.urlencode({'token': token})     
@@ -172,7 +173,6 @@ def callback_with_42(request):
             user_data = fetch_user_data(access_token)
             user = remote_login(user_data,request)
             if user :
-                return redirect('http://127.0.0.1:5500/home/')
                 response = login(request, user)
                 return response
             return Response({'message': 'Login failed. User not found or invalid.','redirect':'home/'}, status=status.HTTP_400_BAD_REQUEST)

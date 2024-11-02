@@ -27,9 +27,9 @@ EMAIL_HOST_PASSWORD = 'aehm cobk lhfd fevc'
 
 
 
-UID = 'u-s4t2ud-bc003f1775049ebfca3f8234618b880c4312974bb58efd39804add946dd1214e'
-SECRET = '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'
-REDIRECT_URI = 'http://127.0.0.1:8000/login/42/callback/'
+UID = 'u-s4t2ud-a05788a6625086387900c9b247f537cf8039976475a37852d1aeaa4f164704b0'
+SECRET = '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'
+REDIRECT_URI = 'http://127.0.0.1:5500/callback'
 
 JWT_SECRET_KEY="yichiba94@"
 
@@ -78,25 +78,50 @@ REST_FRAMEWORK = {
     # ),
 }
 
-
 MIDDLEWARE = [
-    'corsheaders.middleware.CorsMiddleware',
+    'corsheaders.middleware.CorsMiddleware',  # Keep this first
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
-    'django.middleware.common.CommonMiddleware',
+    'django.middleware.common.CommonMiddleware',  # Only need this once
     # 'django.middleware.csrf.CsrfViewMiddleware',
     'accounts.middleware.DisableCSRF',
     'accounts.middleware.JWTAuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
-    'django.middleware.common.CommonMiddleware',
 ]
+CORS_ALLOW_ALL_ORIGINS = True
+CORS_ALLOW_CREDENTIALS = True
 
+# If you want to be more specific about allowed origins (more secure):
 CORS_ALLOWED_ORIGINS = [
-    "http://127.0.0.1:5500",  # Frontend origin
+    "http://127.0.0.1:5500",
+    "http://localhost:5500",
+    # Add any other origins you need
 ]
 
-CORS_ALLOW_CREDENTIALS = True 
+# Add allowed methods
+CORS_ALLOW_METHODS = [
+    'DELETE',
+    'GET',
+    'OPTIONS',
+    'PATCH',
+    'POST',
+    'PUT',
+]
+
+# Add allowed headers
+CORS_ALLOW_HEADERS = [
+    'accept',
+    'accept-encoding',
+    'authorization',
+    'content-type',
+    'dnt',
+    'origin',
+    'user-agent',
+    'x-csrftoken',
+    'x-requested-with',
+]
+
 
 
 ROOT_URLCONF = 'authentication.urls'
