@@ -51,8 +51,14 @@ def change_passwrd(request,username):
             else:
                 return Response({"Error : password is EMPTY or NOT VALID !!!"},status=404)
         return Response({"Error : password is EMPTY or NOT VALID !!!"},status=404)
-
-
+def get_json_data(user):
+    return {
+        "id": user.id,
+        "username": user.username,
+        "email": user.email,
+        "picture": user.profile_picture.url,
+        "status": user.online
+    }
 
 @middleware.requires_authentication
 @api_view(["GET"])
@@ -72,10 +78,10 @@ def get_friends(request):
                     if friend.user1 == user:
                         active_friends.insert(0,get_json_data(friend.user2))
                     else:
-                        active_friends.insert(0,friend.user1.username)
+                        active_friends.insert(0,get_json_data(friend.user1))
                 else:
                     if friend.user2 == user:
-                        friend_requests.insert(0,friend.user1.username)
+                        friend_requests.insert(0,get_json_data(friend.user1))
             return Response(active_friends, status=200)
         else:
             return Response({"message": "nothing "}, status=200)
@@ -371,9 +377,12 @@ class generate_OTP(APIView):
         return base64.b64encode(buffer.getvalue()).decode("utf-8")
     
     def get(self, request):
+        print("from generate_otp")
         user = self.get_user_from_request(request)
+        print("user = ",user)
         if user.auth_2fa:
-            return Response({"message": " insert otp code "}, status=400)
+            print("user.auth_2fa = ",user.auth_2fa)
+            return Response({"is2FAEnabled": user.auth_2fa}, status=200)
         user.mfa_secret = pyotp.random_base32()
         user.save()
         totp = pyotp.TOTP(user.mfa_secret)
@@ -383,8 +392,11 @@ class generate_OTP(APIView):
         buffer = BytesIO()
         qr.save(buffer, format="PNG")
         qr_base64 = base64.b64encode(buffer.getvalue()).decode("utf-8")
-        
-        return Response({"qr_code": f"data:image/png;base64,{qr_base64}"}, status=200)
+        print("qr_base64 = ",qr_base64)
+        return Response({
+            'sucess':True,
+            "is2FAEnabled": user.auth_2fa,
+            "qr_code": f"data:image/png;base64,{qr_base64}"}, status=200)
 
     def post(self, request):
         user=self.get_user_from_request(request)

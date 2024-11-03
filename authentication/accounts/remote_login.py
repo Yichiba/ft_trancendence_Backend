@@ -42,14 +42,14 @@ def login(request, user):
         token  = generate_jwt(user=user,tamp=90)
         token_query = urllib.parse.urlencode({'token': token})     
         redirect_url = f'/2fa/?{token_query}'
-        return redirect(redirect_url)
+        return Response({'success': True,'message': '2fa required.', 'redirect': redirect_url}, status=status.HTTP_200_OK)
     response = Response({'success': True,'message': 'Logged in successfully!'}, status=status.HTTP_200_OK)
     user.online = True
     user.save()
     request.user = user
     response.set_cookie("X-CSRFToken", get_token(request), httponly=False)
     response.set_cookie("JWT_token", generate_jwt(user, tamp=180), httponly=False)
-
+    print("out from login")
     return response
 
 
