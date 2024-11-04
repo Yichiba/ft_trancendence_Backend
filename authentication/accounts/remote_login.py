@@ -37,13 +37,12 @@ def login(request, user):
     print("from login")
     print("2fa ",user.auth_2fa)
     print("status ",user.online)
-    user.online = True
     if user.auth_2fa and not user.online:
         token  = generate_jwt(user=user,tamp=90)
         token_query = urllib.parse.urlencode({'token': token})     
         redirect_url = f'/2fa/?{token_query}'
         return Response({'success': True,'message': '2fa required.', 'redirect': redirect_url}, status=status.HTTP_200_OK)
-    response = Response({'success': True,'message': 'Logged in successfully!'}, status=status.HTTP_200_OK)
+    response = Response({'success': True,'message': "Logged in succesfully"}, status=status.HTTP_200_OK)
     user.online = True
     user.save()
     request.user = user

@@ -269,7 +269,8 @@ class users(APIView):
                 "email": user.email,
                 "lastname": user.last_name,
                 "status" : user.online,
-                "profile_picture": request.build_absolute_uri(img_url)
+                "profile_picture": request.build_absolute_uri(img_url),
+                "is2FAEnabled": user.auth_2fa
             })
             return response
         except models.CustomUser.DoesNotExist:
@@ -352,7 +353,6 @@ class generate_OTP(APIView):
     def get_user_from_request(self, request):
         if request.is_authenticated:
             return request.user
-            
         token = request.GET.get('token')
         if not token:
             raise ValidationError("No authentication provided")
@@ -382,7 +382,7 @@ class generate_OTP(APIView):
         print("user = ",user)
         if user.auth_2fa:
             print("user.auth_2fa = ",user.auth_2fa)
-            return Response({"is2FAEnabled": user.auth_2fa}, status=200)
+            return Response({'success': True, "is2FAEnabled": user.auth_2fa}, status=200)
         user.mfa_secret = pyotp.random_base32()
         user.save()
         totp = pyotp.TOTP(user.mfa_secret)
@@ -399,25 +399,37 @@ class generate_OTP(APIView):
             "qr_code": f"data:image/png;base64,{qr_base64}"}, status=200)
 
     def post(self, request):
-        user=self.get_user_from_request(request)
+        user=self.get_user_from_request(request) 
+        token = request.GET.get('token')
+        
         if not user:
             return Response({"message": "Invalid token"}, status=400)
         otp = request.data.get('otp')
-        print("otp = ",otp)
+        print("aaaaaaaaaa   otp = ",otp)
         if otp:
             # Verify the OTP
+            print("verifying otp")
             totp = pyotp.TOTP(user.mfa_secret)
             if totp.verify(otp):
                 print("otp verified")
                 if  user.auth_2fa:
+                    print(" 2fa token = ",token)
+                    if token == "null":
+                        user.auth_2fa = False
+                        user.save()
+                        print("responsssssssse = ")
+                        return Response({'succes':'true',"message": "2FA disabled"}, status=200)
                     user.online = True
                     response=remote_login.login(request,user)
                     user.save()
+                    print("response = ",response.data)
                     return response
-
-                user.auth_2fa = True
-                user.save()
-                return Response({"message": "2FA enabled"}, status=200)
+                else:
+                    user.auth_2fa = True
+                    user.save()
+                    return Response({'success':'true',"message": "2FA enabled"}, status=200)
             else:
-                return Response({"message": "Invalid OTP"}, status=400)
-        return Response({"message": "OTP is required"}, status=400)
+                print("Invalid OTP Ressssspomnse")
+                return Response({ "message": "Invalid OTP"}, status=200)
+        else:
+            return Response({"message": "OTP is required"}, status=200)
