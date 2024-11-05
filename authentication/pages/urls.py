@@ -1,7 +1,9 @@
 from django.urls import path
-from .views import HomeView , RoomView
+from .views import RoomList, MessageList
 
-urlpatterns = [
-    path("chat/", HomeView, name="login"),
-    path("chat/<str:room_name>/<str:username>/", RoomView, name="room")
+urlpatterns = [ 
+    path('api/rooms/', RoomList.as_view(), name="room_list"),
+    path('api/messages/', MessageList.as_view(), name="message_list"),
+    # path('send/<username>', MessageList.as_view(), name="message_list"),
+    # path('send/user', MessageList.as_view(), name="message_list"),
 ]

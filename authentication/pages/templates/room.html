@@ -122,12 +122,12 @@
       }
 
       .single-message {
-        width: fit-content;
-        max-width: 70%;
-        margin-bottom: 1rem;
+        display: grid;
+        justify-content: flex-start;
       }
 
       .msg-body {
+        border: 1px solid #f0f0f5;
         margin-top: 0.5rem;
         padding: 0.75rem;
         background-color: #4caf50;
@@ -140,17 +140,21 @@
 
       .sent {
         position: relative;
-        right: -25%;
+        justify-content: flex-end;
       }
       .sent > .msg-body {
         background-color: #007bff;
       }
 
       .sender {
-        width: fit-content;
         margin-top: 0.25rem;
         font-size: 0.8rem;
         color: #888;
+        text-align: right; 
+      }
+      
+      .recevied .sender{
+        text-align: left;
       }
 
       .chats-container {
@@ -174,7 +178,7 @@
   <body>
     <div class="page-container">
       <div class="content">
-        <h1>Hello {{ user }} {{ room_name }} Chat Room</h1>
+        <h1 id="header1" class ="header1"> Hello {{ user }} {{ room_name }} Chat Room</h1>
         <div class="chats-container" id ="chat-container">
           {% for message in messages %} {% if message.sender.lower == user.lower %}
           <div class="single-message sent">
@@ -182,9 +186,9 @@
             <span class="sender">Me</span>
           </div>
           {% else %}
-          <div class="single-message">
+          <div class="single-message received">
             <p class="msg-body">{{ message.message }}</p>
-            <span class="sender">{{ message.sender }}</span>
+            <span class="sender">{{ message.sender }}</span>  
           </div>
           {% endif %}
           {% endfor %}
@@ -198,6 +202,8 @@
     </div>
     <script>
       const socketURL = `ws://${window.location.host}/ws/messages/{{ room_name }}/`;
+
+      console.log("this is the socket", socketURL);
       const socket = new WebSocket(socketURL);
       console.log("Establishing connection to ");
       const message_form = document.getElementById("msg-form");
@@ -245,7 +251,7 @@
           </div>`;
         }
         else{
-          chats_div.innerHTML += `<div class="single-message">
+          chats_div.innerHTML += `<div class="single-message received">
             <p class="msg-body">${content}</p>
             <span class="sender">${sender}</span>
           </div>`;

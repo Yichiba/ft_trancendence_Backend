@@ -79,17 +79,17 @@
         <h2>Join a Chat Room</h2>
         <form action="" method="POST">
             {% csrf_token %}
-            <label for="username">Username:</label>
-            <input type="text" placeholder="Enter your name" name="username" required>
+            <label for="username1">Username 1:</label>
+            <input type="text" placeholder="Enter first username" name="username1" required>
             
-            <label for="room_name">Room Name:</label>
-            <input type="text" placeholder="Enter room name" name="room" required>
+            <label for="username2">Username 2:</label>
+            <input type="text" placeholder="Enter second username" name="username2" required>
             
             <button type="submit">Enter Room</button>
         </form>
     </div>
     <footer>
-        <p>&copy;Donpha chat</p>
+        <p>&copy; Donpha chat </p>
     </footer>
 </body>
 </html>

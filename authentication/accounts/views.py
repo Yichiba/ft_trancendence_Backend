@@ -164,6 +164,7 @@ def reject_friend_request(request, username):
     except models.CustomUser.DoesNotExist:
         return Response({"message": "User not found"}, status=404)
 
+
 class login_view(APIView):
     def get(self,request):
         print("get login")
