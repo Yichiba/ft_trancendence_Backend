@@ -81,10 +81,10 @@ def get_friends(request):
                         active_friends.insert(0,get_json_data(friend.user1))
                 else:
                     if friend.user2 == user:
-                        friend_requests.insert(0,get_json_data(friend.user1))
+                        active_friends.insert(0,get_json_data(friend.user1))
             return Response(active_friends, status=200)
         else:
-            return Response({"message": "nothing "}, status=200)
+            return Response({''}, status=200)
    
     except models.FriendShip.DoesNotExist:
         return Response({"message": "no friends "}, status=200)
@@ -143,6 +143,42 @@ def accept_friend_request(request, username):
             return Response({"message": "No friendship  found"}, status=404)
     except models.CustomUser.DoesNotExist:
         return Response({"message": "User not found"}, status=404)
+
+
+
+
+def is_friend(request, username):
+    user1 = request.user
+    try:
+        user2 = models.CustomUser.objects.get(username=username)
+        try:
+            friendship = models.FriendShip.objects.get(user1=user2, user2=user1)
+            return (
+                    {
+                        "friend":  friendship.status,
+                        "recived" : True,
+                        "sent" : False
+                    })
+        except models.FriendShip.DoesNotExist:
+            try:
+                friendship = models.FriendShip.objects.get(user1=user1, user2=user2)
+                return (
+                    {
+                        "friend":  friendship.status,
+                        "recived" : False,
+                        "sent" : True
+                    })
+            except models.FriendShip.DoesNotExist:
+                 return (
+                    {
+                        "friend":  False,
+                        "recived" : False,
+                        "sent" : False
+                    })
+    except models.CustomUser.DoesNotExist:
+        return Response({"message": "User not found"}, status=404)
+
+
 
 @api_view(["POST"])
 @middleware.requires_authentication
@@ -258,20 +294,27 @@ class users(APIView):
 
     @middleware.requires_authentication
     def get(self, request, username):
+        if username == "me":
+            username = request.user_data['username']
         try:
-            if username == "me":
-                username = request.user_data['username']
             user = models.CustomUser.objects.get(username=username)
+            data  = is_friend(request, username)
             img_url = user.profile_picture.url
             print("image url = ",img_url)
             response = Response({
+                "first_name": user.first_name,
+                "last_name": user.last_name,
                 "user_id": user.id,
                 "username":user.username,
                 "email": user.email,
                 "lastname": user.last_name,
                 "status" : user.online,
                 "profile_picture": request.build_absolute_uri(img_url),
-                "is2FAEnabled": user.auth_2fa
+                "is2FAEnabled": user.auth_2fa,
+                "friend":  data["friend"],
+                "recived" : data["recived"],
+                "sent" : data["sent"]
+        
             })
             return response
         except models.CustomUser.DoesNotExist:

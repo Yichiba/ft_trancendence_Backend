@@ -6,7 +6,6 @@ from django.conf import settings
 from rest_framework import status
 from rest_framework.response import Response
 from django.shortcuts import redirect
-from django.http import HttpResponse
 from django.utils.crypto import get_random_string
 from .serializers import RegisterSerializer, UploadSerializer
 from datetime import datetime, timezone,timedelta
@@ -31,6 +30,18 @@ def check_onlineFlag():
             user.online = False
             user.save()
 
+def get_user_data(user):
+    return({
+            "first_name": user.first_name,
+            "last_name": user.last_name,
+            "user_id": user.id,
+            "username":user.username,
+            "email": user.email,
+            "lastname": user.last_name,
+            "status" : user.online,
+            "profile_picture": user.profile_picture.url,
+            "is2FAEnabled": user.auth_2fa
+            })
 
 
 def login(request, user):
@@ -42,7 +53,7 @@ def login(request, user):
         token_query = urllib.parse.urlencode({'token': token})     
         redirect_url = f'/2fa/?{token_query}'
         return Response({'success': True,'message': '2fa required.', 'redirect': redirect_url}, status=status.HTTP_200_OK)
-    response = Response({'success': True,'message': "Logged in succesfully"}, status=status.HTTP_200_OK)
+    response = Response({'success': True,'message': "Logged in succesfully", "user":get_user_data(user)}, status=status.HTTP_200_OK)
     user.online = True
     user.save()
     request.user = user
@@ -154,8 +165,9 @@ def fetch_user_data(access_token):
 
 @api_View(['GET'])
 def callback_with_42(request):
+    print("from callback_with_42")
     code = request.GET.get('code')
-
+    print("code",code)
     if code:
         token_url = 'https://api.intra.42.fr/v2/oauth/token'
         payload = {
@@ -175,7 +187,6 @@ def callback_with_42(request):
                 response = login(request, user)
                 return response
             return Response({'message': 'Login failed. User not found or invalid.','redirect':'home/'}, status=status.HTTP_400_BAD_REQUEST)
-
         return Response({'message': 'Failed to obtain access token.'}, status=status.HTTP_400_BAD_REQUEST)
 
     return Response({'message': 'No authorization code found.'}, status=status.HTTP_400_BAD_REQUEST)

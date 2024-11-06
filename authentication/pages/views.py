@@ -1,10 +1,11 @@
 from django.shortcuts import render, redirect
-from rest_framework import generics
+from rest_framework import generics 
 from .models import Room, Message
 from .serializers import RoomSerializer, MessageSerializer
 from django.http import JsonResponse
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
+
 
 # def HomeView(request):
 #     if request.method == "POST":
@@ -42,44 +43,50 @@ def chat_room_data(request, room_name):
     ]
     return JsonResponse({"messages": messages_data, "user": request.user.username})
 
+def get_room_name(user1, user2):
+    if user1 < user2:
+        return f"{user1}_{user2}"
+    return f"{user2}_{user1}"
 
-class RoomList(generics.ListCreateAPIView):
-    queryset = Room.objects.all()
-    serializer_class = RoomSerializer
-    def get(self, request, *args, **kwargs):
+
+
+@api_view(['GET'])
+def RoomList(request,username):
+    print("from RoomList")
+
+    roomName = get_room_name(request.user.username, username)
+    # serializer_class = RoomSerializer
+    print("roomName",roomName)
+    room= Room()
+    try:
+        room = Room.objects.get(room_name=roomName)
+        return Response(f"room_Name : {room.room_name}", status=200)
+    except room.DoesNotExist:
+        room=Room.objects.create(room_name=roomName, user1=request.user.username, user2=username)
+        room.save()
+        return Response(f"room_name{room.room_name}", status=200)
+
+
+@api_view(['GET'])
+def MessageList(request,room_name):
+    # serializer_class = MessageSerializer
+    try:
+        room = Room.objects.get(room_name=room_name)
+        room_id = room.id
         try:
-            room  = Room.objects.all()
-        except room.DoesNotExist:
-            room = None
-        if room:
-            print("room",room)
-        else:
-            print("no message")
-        print("from get")
-        print("request.user",request.user)
-        return self.list(request, *args, **kwargs)
-
-
-
-class MessageList(generics.ListCreateAPIView):
-    queryset = Message.objects.all()
-    serializer_class = MessageSerializer
-    def get(self, request, *args, **kwargs):
-        try:
-            message  = Message.objects.get()
+            message  = Message.objects.get(room=room_id)
+            print("message",message)
+            return Response(f"message :{message}", status=200)
         except Message.DoesNotExist:
             message = None
-        if message:
-            print("message",message)
-        else:
-            print("no message")
-        print("from get")
-        print("request.user",request.user)
-        return self.list(request, *args, **kwargs)
-    def post(self, request, *args, **kwargs):
-        print("from post")
-        print("request.user",request.user)
-        return self.create(request, *args, **kwargs)
+            return Response({"message": "No message found"}, status=404)
+    except Room.DoesNotExist:
+        return Response({"message": "No room found"}, status=404)
+    # print("from get")
+    # print("request.user",request.user)
+    # return self.list(request, *args, **kwargs)
+    
+    
 
 # If this is not needed, it can be removed for clarity
 @api_view(['GET'])
