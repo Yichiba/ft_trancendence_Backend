@@ -46,7 +46,7 @@ from django.core.exceptions import ValidationError
 class UploadSerializer(serializers.ModelSerializer):
     class Meta:
         model = CustomUser
-        fields = ['profile_picture', 'username', 'email', 'password']
+        fields = ['profile_picture', 'username', 'email', 'password','first_name', 'last_name']
         
         extra_kwargs = {
             'username': {'required': False},
@@ -74,6 +74,12 @@ class UploadSerializer(serializers.ModelSerializer):
         if data.get('profile_picture'):
             if data.get('profile_picture').content_type  not in ['image/jpeg', 'image/png','image/jpg']:
                 raise serializers.ValidationError("photo type not suported ")
+        if data.get('first_name'):
+            if len(data.get('first_name')) < 2:
+                raise serializers.ValidationError("First name is too short.")
+        if data.get('last_name'):
+            if len(data.get('last_name')) < 2:
+                raise serializers.ValidationError("Last name is too short.")
             
         if data.get('password'):
             try:

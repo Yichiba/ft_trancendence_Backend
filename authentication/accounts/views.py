@@ -329,7 +329,7 @@ class users(APIView):
             username = request.user_data['username']
             if username == request.user_data['username']:
                 try:
-                    user = models.CustomUser.objects.get(username=username)
+                    user = request.user
                     serialiser = serializers.UploadSerializer(user,data=request.data,context={'request': request},partial=True)
                     if serialiser.is_valid():
                         user = serialiser.save()
