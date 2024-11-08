@@ -19,7 +19,6 @@ from rest_framework.response import Response
 
 
 def requires_authentication(view_func):
-    print("inside requires_authentication") 
     @wraps(view_func)
     def wrapper(request, *args, **kwargs):
         if args:
