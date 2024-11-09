@@ -100,7 +100,7 @@ def send_email(user):
     message["From"] = "youssefichiba@gmail.com"
     message["To"] = user.email
     token = generate_jwt(user,5)
-    url = "http://127.0.0.1:8000/reset_password/"+token
+    url = "http://127.0.0.1:5500/resetpassword/"+token
     message = MIMEText(url)
 
     try:
@@ -140,7 +140,7 @@ def remote_login( user_data, request):
         "password": random_pasword,
         "password_confirm":random_pasword
     }
-
+    print("validated_data",validated_data)
     try:
         existing_user = CustomUser.objects.get(email=validated_data['email'])
         return existing_user
@@ -179,10 +179,14 @@ def callback_with_42(request):
         }
 
         response = requests.post(token_url, json=payload)
+        print("response",response)
+        print("response.json",response.json())
+        print("response.status_code",response.status_code)
         if response.status_code == 200:
             access_token = response.json().get('access_token')
             user_data = fetch_user_data(access_token)
             user = remote_login(user_data,request)
+            print("user",user)
             if user :
                 response = login(request, user)
                 return response
