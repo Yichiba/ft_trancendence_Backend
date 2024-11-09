@@ -51,33 +51,40 @@ def get_room_name(user1, user2):
 
 
 @api_view(['GET'])
-def RoomList(request, username):
+def RoomList(request,username):
+    print("from RoomList")
 
-    roomName = get_room_name('safaa', username)  # must noaman be changed
+    roomName = get_room_name(request.user.username, username)
+    # serializer_class = RoomSerializer
+    print("roomName",roomName)
+    room= Room()
     try:
         room = Room.objects.get(room_name=roomName)
-        serializer = RoomSerializer(room)
-        return Response(serializer.data, status=200)
-    except Room.DoesNotExist:
-        room = Room.objects.create(room_name=roomName, user1=request.user.username, user2=username)
+        return Response(f"room_Name : {room.room_name}", status=200)
+    except room.DoesNotExist:
+        room=Room.objects.create(room_name=roomName, user1=request.user.username, user2=username)
         room.save()
-        serializer = RoomSerializer(room)
-        return Response(serializer.data, status=201)
+        return Response(f"room_name{room.room_name}", status=200)
 
 
 @api_view(['GET'])
-def MessageList(request, room_name):
+def MessageList(request,room_name):
+    # serializer_class = MessageSerializer
     try:
         room = Room.objects.get(room_name=room_name)
+        room_id = room.id
         try:
-            messages = Message.objects.filter(room=room)
-            serializer = MessageSerializer(messages, many=True)
-            return Response(serializer.data, status=200)
+            message  = Message.objects.get(room=room_id)
+            print("message",message)
+            return Response(f"message :{message}", status=200)
         except Message.DoesNotExist:
+            message = None
             return Response({"message": "No message found"}, status=404)
     except Room.DoesNotExist:
         return Response({"message": "No room found"}, status=404)
-
+    # print("from get")
+    # print("request.user",request.user)
+    # return self.list(request, *args, **kwargs)
     
     
 

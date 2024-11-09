@@ -2,8 +2,9 @@ from django.db import models
 
 class Room(models.Model):
     room_name = models.CharField(max_length=50, unique=True)
-    user1 = models.CharField(max_length=50, default="unknown")
-    user2 = models.CharField(max_length=50, default="unknown")
+    # room_id = models.IntegerField(unique=True)
+    user1 = models.CharField(max_length=50)
+    user2 = models.CharField(max_length=50)
 
     def checkSorted(self, *args, **kwargs):
         if self.user1 > self.user2:

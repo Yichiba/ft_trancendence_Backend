@@ -25,6 +25,8 @@ urlpatterns = [
     path('chat/', include('pages.urls')),
     path('api/token/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
     path('api/token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
+    path("", include("pages.urls")),
+    path("", include("pages.urls")),
 ]
 
 
