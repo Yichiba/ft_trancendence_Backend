@@ -72,7 +72,7 @@ def get_friends(request):
     user = request.user
     try:
         friends = models.FriendShip.objects.filter(user1=user) | models.FriendShip.objects.filter(user2=user)
-        if friends.exists():
+        if friends.exists() and len(friends)> 0:
             for friend in friends:
                 if friend.status == True:
                     if friend.user1 == user:
@@ -81,16 +81,13 @@ def get_friends(request):
                         active_friends.insert(0,get_json_data(friend.user1))
                 else:
                     if friend.user2 == user:
-                        active_friends.insert(0,get_json_data(friend.user1))
-            return Response(active_friends, status=200)
-        else:
-            return Response({''}, status=200)
-   
+                        print("from frie shhshshhshshhshshshshhshshshs dakhjhhehehel    nd_requests")
+                        friend_requests.insert(0,get_json_data(friend.user1))
+            return Response({ 'success' : True,'data' : { 'success' : True, 'friends' : active_friends, 'requests':friend_requests}} ,status=200)
     except models.FriendShip.DoesNotExist:
-        return Response({"message": "no friends "}, status=200)
+            return Response({ 'success' : False, 'data' : { 'success' : False }} ,status=200)    
     
-    
-    
+@api_view(["POST"])
 @middleware.requires_authentication
 def send_friend_request(request, username):
     user1 = request.user
@@ -100,15 +97,16 @@ def send_friend_request(request, username):
         if user1 != user2:
             try:
                 existing_friendship = models.FriendShip.objects.get(user1=user1,user2=user2)
+                return Response({'success': False, "msg": "Friend request already sent"}, status=200)
             except models.FriendShip.DoesNotExist:
                 try:
                     existing_friendship = models.FriendShip.objects.get(user1=user2,user2=user1)
+                    return Response({'success': False, "msg": "Friend request already sent"}, status=200)
                 except models.FriendShip.DoesNotExist:
                     models.FriendShip.objects.create(user1=user1, user2=user2)
-                    return Response({'success':True,"data": "Friend request sent successfully"}, status=200)
+                    return Response({'success':True,"msg": "Friend request sent successfully"}, status=200)
     except models.CustomUser.DoesNotExist:
-        return Response({"message": "User not found"}, status=404)
-
+        return Response({'success': False, "msg": "User not found"}, status=404)
 
     
     
@@ -123,13 +121,13 @@ def accept_friend_request(request, username):
             if friendship.status == False:
                 friendship.status = True
                 friendship.save()
-                return Response({"message": f"{user2.username} is now your friend"}, status=200)
+                return Response({'success': True ,"message": f"{user2.username} is now your friend"}, status=200)
             else:
-                return Response({"message": f"{user2.username} is already in your friend list"}, status=200)
+                return Response({'success': True, "message": f"{user2.username} is already in your friend list"}, status=200)
         except models.FriendShip.DoesNotExist:
-            return Response({"message": "No friendship  found"}, status=404)
+            return Response({'success': False ,"message": "No friendship  found"}, status=404)
     except models.CustomUser.DoesNotExist:
-        return Response({"message": "User not found"}, status=404)
+        return Response({'success': False ,"message": "User not found"}, status=404)
 
 
 @api_view(["GET"])
@@ -194,12 +192,6 @@ def reject_friend_request(request, username):
 
 
 class login_view(APIView):
-    def get(self,request):
-        print("get login")
-        message = 'Loggin page '
-        response = remote_login.generateResponse(request,message,status.HTTP_200_OK)
-        return response
-    # @middleware.not_authenticated
     def post(self,request):
         print("from loginView Fun")
         username = request.data.get('username')
@@ -209,8 +201,7 @@ class login_view(APIView):
         if user is not None:
             response = remote_login.login(request, user)
             return response 
-  
-        return Response({'error': 'Invalid credentials'},status=status.HTTP_401_UNAUTHORIZED)        
+        return Response({'success': False, 'error': 'Invalid credentials'}, status=status.HTTP_200_OK)
         
         
 
@@ -232,23 +223,19 @@ class logout_view(APIView):
 
 
 class RegisterView(APIView):
-
-    @middleware.not_authenticated
-    def get(self, request):
-
-        return render(request, 'register.html')
     
     @middleware.not_authenticated
     def post(self, request):
         
         print("from reister_view Fun")
+        print("request.data = ",request.data)
         serializer = serializers.RegisterSerializer(data=request.data)
         if serializer.is_valid():
             user = serializer.save()
             if user is not None:
                 response = remote_login.login(request, user)
                 return response  
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        return Response({'success': False,'message': serializer.errors}, status=status.HTTP_200_OK)
 
 class home_view(APIView):
     @middleware.requires_authentication
