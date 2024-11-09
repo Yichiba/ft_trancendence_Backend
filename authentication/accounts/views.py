@@ -56,7 +56,7 @@ def get_json_data(user):
         "id": user.id,
         "username": user.username,
         "email": user.email,
-        "picture": user.profile_picture.url,
+        "profile_picture": user.profile_picture.url,
         "status": user.online
     }
 
@@ -71,8 +71,9 @@ def get_friends(request):
     # return Response(f"friends:{active_friends} ..."f"     friends_request:{friend_requests}",status=200)
     user = request.user
     try:
+        print("from frie friendd dosnot exist ")
         friends = models.FriendShip.objects.filter(user1=user) | models.FriendShip.objects.filter(user2=user)
-        if friends.exists() and len(friends)> 0:
+        if friends.exists():
             for friend in friends:
                 if friend.status == True:
                     if friend.user1 == user:
@@ -81,9 +82,9 @@ def get_friends(request):
                         active_friends.insert(0,get_json_data(friend.user1))
                 else:
                     if friend.user2 == user:
-                        print("from frie shhshshhshshhshshshshhshshshs dakhjhhehehel    nd_requests")
                         friend_requests.insert(0,get_json_data(friend.user1))
             return Response({ 'success' : True,'data' : { 'success' : True, 'friends' : active_friends, 'requests':friend_requests}} ,status=200)
+        return Response({ 'success' : True,'data' : { 'success' : True, 'friends' : active_friends, 'requests':friend_requests}} ,status=200)
     except models.FriendShip.DoesNotExist:
             return Response({ 'success' : False, 'data' : { 'success' : False }} ,status=200)    
     
@@ -105,8 +106,11 @@ def send_friend_request(request, username):
                 except models.FriendShip.DoesNotExist:
                     models.FriendShip.objects.create(user1=user1, user2=user2)
                     return Response({'success':True,"msg": "Friend request sent successfully"}, status=200)
+        else:
+            return Response({'success': False, "msg": "You can't send a friend request to yourself"}, status=200)
     except models.CustomUser.DoesNotExist:
         return Response({'success': False, "msg": "User not found"}, status=404)
+    
 
     
     
@@ -142,9 +146,6 @@ def get_all_users(request):
 
 def is_friend(request, username):
     user1 = request.user
-    print("from is_friend")
-    print("username1 = ",user1.username)
-    print("username2 = ",username)
     try:
         user2 = models.CustomUser.objects.get(username=username)
         try:
