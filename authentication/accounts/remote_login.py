@@ -22,7 +22,7 @@ from rest_framework.decorators import api_view as api_View
 
 def check_onlineFlag():
     from .models import CustomUser
-    print("from check_onlineFlag")
+    # print("from check_onlineFlag")
     users = CustomUser.objects.all()
     for user in users:
         now = datetime.now(timezone.utc)
@@ -45,9 +45,9 @@ def get_user_data(user):
 
 
 def login(request, user):
-    print("from login")
-    print("2fa ",user.auth_2fa)
-    print("status ",user.online)
+    # print("from login")
+    # print("2fa ",user.auth_2fa)
+    # print("status ",user.online)
     if user.auth_2fa and not user.online:
         token  = generate_jwt(user=user,tamp=90)
         token_query = urllib.parse.urlencode({'token': token})     
@@ -59,12 +59,12 @@ def login(request, user):
     request.user = user
     response.set_cookie("X-CSRFToken", get_token(request), httponly=False)
     response.set_cookie("JWT_token", generate_jwt(user, tamp=180), httponly=False)
-    print("out from login")
+    # print("out from login")
     return response
 
 
 def generateResponse(request, msg, status_code):
-    print("Generating response")
+    # print("Generating response")
 
     token = None
 
@@ -82,8 +82,8 @@ def generateResponse(request, msg, status_code):
 JWT_SECRET_KEY="yichiba94@"
 
 def generate_jwt(user,tamp):
-    print("from generate_jwt")
-    print("user-status",user.online)
+    # print("from generate_jwt")
+    # print("user-status",user.online)
     payloads = {
         "sub": user.id,
         "username":user.username,
@@ -128,7 +128,7 @@ def save_profile_picture(user, image_url):
 
 
 def remote_login( user_data, request):
-    print("from remote_login Fun")
+    # print("from remote_login Fun")
     random_pasword = get_random_string(12)
 
     validated_data = {
@@ -140,7 +140,7 @@ def remote_login( user_data, request):
         "password": random_pasword,
         "password_confirm":random_pasword
     }
-    print("validated_data",validated_data)
+    # print("validated_data",validated_data)
     try:
         existing_user = CustomUser.objects.get(email=validated_data['email'])
         return existing_user
@@ -165,9 +165,9 @@ def fetch_user_data(access_token):
 
 @api_View(['GET'])
 def callback_with_42(request):
-    print("from callback_with_42")
+    # print("from callback_with_42")
     code = request.GET.get('code')
-    print("code",code)
+    # print("code",code)
     if code:
         token_url = 'https://api.intra.42.fr/v2/oauth/token'
         payload = {
@@ -179,14 +179,14 @@ def callback_with_42(request):
         }
 
         response = requests.post(token_url, json=payload)
-        print("response",response)
-        print("response.json",response.json())
-        print("response.status_code",response.status_code)
+        # print("response",response)
+        # print("response.json",response.json())
+        # print("response.status_code",response.status_code)
         if response.status_code == 200:
             access_token = response.json().get('access_token')
             user_data = fetch_user_data(access_token)
             user = remote_login(user_data,request)
-            print("user",user)
+            # print("user",user)
             if user :
                 response = login(request, user)
                 return response

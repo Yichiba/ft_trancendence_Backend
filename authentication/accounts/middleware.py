@@ -41,7 +41,7 @@ def not_authenticated(view_func):
         if args:
             request = args[0]
         if request.is_authenticated :
-            print("you are already logged in !!!'")
+            # print("you are already logged in !!!'")
             messages.info(request,'you are already logged in !!!')
             return redirect("home")
         return view_func(request, *args, **kwargs)
@@ -50,16 +50,16 @@ def not_authenticated(view_func):
 
 def JWTCheck(token):
     try:
-        print("Checking JWT...")
+        # print("Checking JWT...")
         payload = jwt.decode(token, JWT_SECRET_KEY, algorithms=['HS256']) 
         return payload
     
     except jwt.ExpiredSignatureError:
-        print("Token has expired.")
+        # print("Token has expired.")
         return None
 
     except jwt.InvalidTokenError:
-        print("Invalid token.")
+        # print("Invalid token.")
         return None
 
 
@@ -68,9 +68,9 @@ def JWTCheck(token):
 class JWTAuthenticationMiddleware(MiddlewareMixin):
     def process_request(self, request):
         from .models import CustomUser
-        print("Processing request in middleware...")
+        # print("Processing request in middleware...")
         if 'JWT_token' in request.COOKIES:
-            print("JWT_token found in request...")
+            # print("JWT_token found in request...")
             token = request.COOKIES['JWT_token']
             payload = JWTCheck(token)
             if payload:
@@ -89,10 +89,10 @@ class JWTAuthenticationMiddleware(MiddlewareMixin):
                 request.user_data = None    
                 request.is_authenticated = False
         else:
-            print("JWT_token not found in request...")
+            # print("JWT_token not found in request...")
             request.user_data = None
             request.is_authenticated = False
-        print("out of middleware...",  request.is_authenticated)
+        # print("out of middleware...",  request.is_authenticated)
     
     
     

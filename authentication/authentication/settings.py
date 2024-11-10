@@ -56,6 +56,7 @@ ALLOWED_HOSTS = []
 
 INSTALLED_APPS = [
     # 'django.contrib.admin',
+    'daphne',
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
@@ -83,6 +84,8 @@ MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',  # Only need this once
+        'django.contrib.auth.middleware.AuthenticationMiddleware',  # Required for `request.user`
+
     # 'django.middleware.csrf.CsrfViewMiddleware',
     'accounts.middleware.DisableCSRF',
     'accounts.middleware.JWTAuthenticationMiddleware',

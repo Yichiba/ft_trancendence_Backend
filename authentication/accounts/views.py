@@ -19,7 +19,7 @@ import requests
 @middleware.requires_authentication
 @api_view(["GET"])
 def get_online_friends(request):
-    print("from get_online_friends")
+    # print("from get_online_friends")
     online = []
     try:
         remote_login.check_onlineFlag()
@@ -63,7 +63,7 @@ def get_json_data(user):
 @middleware.requires_authentication
 @api_view(["GET"])
 def get_friends(request):
-    print("from get_friends")
+    # print("from get_friends")
     active_friends = []
     friend_requests = []
     # active_friends = models.FriendShip.get_friends(request.user)
@@ -72,7 +72,7 @@ def get_friends(request):
     user = request.user
     try:
         friends = models.FriendShip.objects.filter(user1=user) | models.FriendShip.objects.filter(user2=user)
-        if friends.exists():
+        if friends.exists() and len(friends)> 0:
             for friend in friends:
                 if friend.status == True:
                     if friend.user1 == user:
@@ -81,16 +81,13 @@ def get_friends(request):
                         active_friends.insert(0,get_json_data(friend.user1))
                 else:
                     if friend.user2 == user:
-                        active_friends.insert(0,get_json_data(friend.user1))
-            return Response(active_friends, status=200)
-        else:
-            return Response({''}, status=200)
-   
+                        # print("from frie shhshshhshshhshshshshhshshshs dakhjhhehehel    nd_requests")
+                        friend_requests.insert(0,get_json_data(friend.user1))
+            return Response({ 'success' : True,'data' : { 'success' : True, 'friends' : active_friends, 'requests':friend_requests}} ,status=200)
     except models.FriendShip.DoesNotExist:
-        return Response({"message": "no friends "}, status=200)
+            return Response({ 'success' : False, 'data' : { 'success' : False }} ,status=200)    
     
-    
-    
+@api_view(["POST"])
 @middleware.requires_authentication
 def send_friend_request(request, username):
     user1 = request.user
@@ -100,15 +97,16 @@ def send_friend_request(request, username):
         if user1 != user2:
             try:
                 existing_friendship = models.FriendShip.objects.get(user1=user1,user2=user2)
+                return Response({'success': False, "msg": "Friend request already sent"}, status=200)
             except models.FriendShip.DoesNotExist:
                 try:
                     existing_friendship = models.FriendShip.objects.get(user1=user2,user2=user1)
+                    return Response({'success': False, "msg": "Friend request already sent"}, status=200)
                 except models.FriendShip.DoesNotExist:
                     models.FriendShip.objects.create(user1=user1, user2=user2)
-                    return Response({'success':True,"data": "Friend request sent successfully"}, status=200)
+                    return Response({'success':True,"msg": "Friend request sent successfully"}, status=200)
     except models.CustomUser.DoesNotExist:
-        return Response({"message": "User not found"}, status=404)
-
+        return Response({'success': False, "msg": "User not found"}, status=404)
 
     
     
@@ -123,13 +121,13 @@ def accept_friend_request(request, username):
             if friendship.status == False:
                 friendship.status = True
                 friendship.save()
-                return Response({"message": f"{user2.username} is now your friend"}, status=200)
+                return Response({'success': True ,"message": f"{user2.username} is now your friend"}, status=200)
             else:
-                return Response({"message": f"{user2.username} is already in your friend list"}, status=200)
+                return Response({'success': True, "message": f"{user2.username} is already in your friend list"}, status=200)
         except models.FriendShip.DoesNotExist:
-            return Response({"message": "No friendship  found"}, status=404)
+            return Response({'success': False ,"message": "No friendship  found"}, status=404)
     except models.CustomUser.DoesNotExist:
-        return Response({"message": "User not found"}, status=404)
+        return Response({'success': False ,"message": "User not found"}, status=404)
 
 
 @api_view(["GET"])
@@ -144,9 +142,9 @@ def get_all_users(request):
 
 def is_friend(request, username):
     user1 = request.user
-    print("from is_friend")
-    print("username1 = ",user1.username)
-    print("username2 = ",username)
+    # print("from is_friend")
+    # print("username1 = ",user1.username)
+    # print("username2 = ",username)
     try:
         user2 = models.CustomUser.objects.get(username=username)
         try:
@@ -194,23 +192,16 @@ def reject_friend_request(request, username):
 
 
 class login_view(APIView):
-    def get(self,request):
-        print("get login")
-        message = 'Loggin page '
-        response = remote_login.generateResponse(request,message,status.HTTP_200_OK)
-        return response
-    # @middleware.not_authenticated
     def post(self,request):
-        print("from loginView Fun")
+        # print("from loginView Fun")
         username = request.data.get('username')
         password = request.data.get('password')
         user = authenticate(username=username, password=password)
-        print("username and ppasswordaa",username,password)
+        # print("username and ppasswordaa",username,password)
         if user is not None:
             response = remote_login.login(request, user)
             return response 
-  
-        return Response({'error': 'Invalid credentials'},status=status.HTTP_401_UNAUTHORIZED)        
+        return Response({'success': False, 'error': 'Invalid credentials'}, status=status.HTTP_200_OK)
         
         
 
@@ -232,23 +223,19 @@ class logout_view(APIView):
 
 
 class RegisterView(APIView):
-
-    @middleware.not_authenticated
-    def get(self, request):
-
-        return render(request, 'register.html')
     
     @middleware.not_authenticated
     def post(self, request):
         
-        print("from reister_view Fun")
+        # print("from reister_view Fun")
+        # print("request.data = ",request.data)
         serializer = serializers.RegisterSerializer(data=request.data)
         if serializer.is_valid():
             user = serializer.save()
             if user is not None:
                 response = remote_login.login(request, user)
                 return response  
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        return Response({'success': False,'message': serializer.errors}, status=status.HTTP_200_OK)
 
 class home_view(APIView):
     @middleware.requires_authentication
@@ -257,7 +244,7 @@ class home_view(APIView):
 
 
 def login_with_42(request):
-    print("login_with_42 fucn")
+    # print("login_with_42 fucn")
     auth_url = "https://api.intra.42.fr/oauth/authorize"
     params = {
         "client_id": settings.UID,
@@ -271,7 +258,7 @@ def login_with_42(request):
             string_params += '&'
         string_params += f"{key}={value}"
     redirect_url = f"{auth_url}?{string_params}"
-    print(" ouuuut redirect_url = ",redirect_url)
+    # print(" ouuuut redirect_url = ",redirect_url)
     return redirect(redirect_url)
 
 
@@ -295,7 +282,7 @@ class users(APIView):
             user = models.CustomUser.objects.get(username=username)
             data  = is_friend(request, username)
             img_url = user.profile_picture.url
-            print("image url = ",img_url)
+            # print("image url = ",img_url)
             response = Response({'success':True ,'user': {
                 "first_name": user.first_name,
                 "last_name": user.last_name,
@@ -319,7 +306,7 @@ class users(APIView):
     @middleware.requires_authentication
     def post(self, request, username):
         response = Response()
-        print("from post user,   request = ",request.data)
+        # print("from post user,   request = ",request.data)
         
         if username == "me":
             username = request.user_data['username']
@@ -330,11 +317,11 @@ class users(APIView):
                 partial_data = {field: value}
                 handler = getattr(upload_handler, f"_handle_{field}", None)
                 if handler:
-                    print("field = ",field)
+                    # print("field = ",field)
                     responses[field] = handler(request,partial_data)
                     print("responses = ",responses)
                     if field == 'username' and 'success' in responses['username']:
-                        print("from username   COOKIES================")
+                        # print("from username   COOKIES================")
                         response.set_cookie("JWT_token", remote_login.generate_jwt(user, tamp=180), httponly=False)
 
         response.data = responses
@@ -347,19 +334,19 @@ class users(APIView):
 
 @api_view(['POST',"GET"])
 def forgot_passwd(request):
-    print("from forgot fun ")       
+    # print("from forgot fun ")       
     if request.method == 'POST':
         email = request.data['email']
-        print("email = ",email)
+        # print("email = ",email)
         if email :
             try:
-                print("from try  1")
+                # print("from try  1")
                 user = models.CustomUser.objects.get(email=email)
                 remote_login.send_email(user)
                 return Response({'success':True, 'data' : "check your Email" , '2FA' :user.auth_2fa },status=200)
             except models.CustomUser.DoesNotExist :
                 try:
-                    print("from try  1")
+                    # print("from try  1")
                     user = models.CustomUser.objects.get(username=email)
                     remote_login.send_email(user)
                     return Response({'success':True, 'data' : "check your Email ", '2FA' :user.auth_2fa},status=200)
@@ -371,7 +358,7 @@ def forgot_passwd(request):
 
 @api_view(["POST"])
 def reset_password(request,token):
-    print("from reset fun  ")
+    # print("from reset fun  ")
     if  request.method == 'POST':
         new_password = request.data.get('password')
         if new_password:
@@ -420,11 +407,11 @@ class generate_OTP(APIView):
         return base64.b64encode(buffer.getvalue()).decode("utf-8")
     
     def get(self, request):
-        print("from generate_otp")
+        # print("from generate_otp")
         user = self.get_user_from_request(request)
-        print("user = ",user)
+        # print("user = ",user)
         if user.auth_2fa:
-            print("user.auth_2fa = ",user.auth_2fa)
+            # print("user.auth_2fa = ",user.auth_2fa)
             return Response({'success': True, "is2FAEnabled": user.auth_2fa}, status=200)
         user.mfa_secret = pyotp.random_base32()
         user.save()
@@ -435,7 +422,7 @@ class generate_OTP(APIView):
         buffer = BytesIO()
         qr.save(buffer, format="PNG")
         qr_base64 = base64.b64encode(buffer.getvalue()).decode("utf-8")
-        print("qr_base64 = ",qr_base64)
+        # print("qr_base64 = ",qr_base64)
         return Response({
             'sucess':True,
             "is2FAEnabled": user.auth_2fa,
@@ -448,32 +435,32 @@ class generate_OTP(APIView):
         if not user:
             return Response({"message": "Invalid token"}, status=400)
         otp = request.data.get('otp')
-        print("aaaaaaaaaa   otp = ",otp)
+        # print("aaaaaaaaaa   otp = ",otp)
         if otp:
             # Verify the OTP
-            print("verifying otp")
+            # print("verifying otp")
             totp = pyotp.TOTP(user.mfa_secret)
             if totp.verify(otp):
                     
-                print("otp verified")
+                # print("otp verified")
                 if  user.auth_2fa :
-                    print(" 2fa token = ",token)
+                    # print(" 2fa token = ",token)
                     if request.is_authenticated:
                         user.auth_2fa = False
                         user.save()
-                        print("responsssssssse = ")
+                        # print("responsssssssse = ")
                         return Response({'succes':'true',"message": "2FA disabled"}, status=200)
                     user.online = True
                     response=remote_login.login(request,user)
                     user.save()
-                    print("response = ",response.data)
+                    # print("response = ",response.data)
                     return response
                 else:
                     user.auth_2fa = True
                     user.save()
                     return Response({'success':'true',"message": "2FA enabled"}, status=200)
             else:
-                print("Invalid OTP Ressssspomnse")
+                # print("Invalid OTP Ressssspomnse")
                 return Response({ "message": "Invalid OTP"}, status=200)
         else:
             return Response({"message": "OTP is required"}, status=200)

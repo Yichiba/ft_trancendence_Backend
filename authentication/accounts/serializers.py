@@ -56,7 +56,7 @@ class UploadSerializer(serializers.ModelSerializer):
         }
 
     def validate(self, data):
-        print('from validate function')
+        # print('from validate function')
         user = self.context['request'].user
         
         if data.get('username'):
@@ -72,7 +72,7 @@ class UploadSerializer(serializers.ModelSerializer):
                 raise serializers.ValidationError("This email is invalid.")
         
         if data.get('profile_picture'):
-            print ("progile picture = ",data.get('profile_picture'))
+            # print ("progile picture = ",data.get('profile_picture'))
             if data.get('profile_picture').content_type  not in ['image/jpeg', 'image/png','image/jpg']:
                 raise serializers.ValidationError("photo type not suported ")
         if data.get('first_name'):

@@ -17,6 +17,6 @@ try:
         server.starttls()  # Upgrade the connection to secure
         server.login(sender_email, password)
         server.sendmail(sender_email, receiver_email, message.as_string())
-        print("Email sent successfully")
+        # print("Email sent successfully")
 except Exception as e:
     print(f"Error: {e}")

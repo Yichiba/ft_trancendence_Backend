@@ -52,8 +52,10 @@ def get_room_name(user1, user2):
 
 @api_view(['GET'])
 def RoomList(request, username):
-
-    roomName = get_room_name('safaa', username)  # must noaman be changed
+    roomName = get_room_name("nelallo", username)  # must noaman be changed
+    print("this is the roomName = ", roomName)
+    # print("this is the username = ", username)
+    # print("this is the request.user.username = ", request)
     try:
         room = Room.objects.get(room_name=roomName)
         serializer = RoomSerializer(room)

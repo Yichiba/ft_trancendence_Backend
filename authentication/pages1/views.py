@@ -52,11 +52,11 @@ def get_room_name(user1, user2):
 
 @api_view(['GET'])
 def RoomList(request,username):
-    print("from RoomList")
+    # print("from RoomList")
 
     roomName = get_room_name(request.user.username, username)
     # serializer_class = RoomSerializer
-    print("roomName",roomName)
+    # print("roomName",roomName)
     room= Room()
     try:
         room = Room.objects.get(room_name=roomName)
@@ -75,7 +75,7 @@ def MessageList(request,room_name):
         room_id = room.id
         try:
             message  = Message.objects.get(room=room_id)
-            print("message",message)
+            # print("message",message)
             return Response(f"message :{message}", status=200)
         except Message.DoesNotExist:
             message = None

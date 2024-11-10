@@ -203,9 +203,7 @@
     <script>
       const socketURL = `ws://${window.location.host}/ws/messages/{{ room_name }}/`;
 
-      console.log("this is the socket", socketURL);
       const socket = new WebSocket(socketURL);
-      console.log("Establishing connection to ");
       const message_form = document.getElementById("msg-form");
       message_form.addEventListener("submit", function (event)
       {
@@ -231,7 +229,6 @@
       socket.addEventListener("message", (e) => {
         const data = JSON.parse(e.data)["message"];
 
-        console.log("Message received:", data);
 
         let sender = data["sender"];
         let content = data["message"];
