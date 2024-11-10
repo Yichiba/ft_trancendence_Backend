@@ -1,0 +1,41 @@
+networks:
+  badtrip:
+    name: badtrip
+volumes:
+  data:
+    driver: local
+    driver_opts:
+      type: none
+      device: ./data
+      o: bind
+services:
+  front:
+    container_name: front
+    build: ./front
+    depends_on:
+      - backend 
+    restart: always
+    volumes:
+      - data:/front
+    networks:
+      - badtrip
+  backend:
+    container_name: backend
+    build: ./backend
+    env_file: .env
+    restart: always
+    volumes:
+      - data:/backend
+    networks:
+      - badtrip
+  server:
+    container_name: server 
+    build: ./server
+    ports:
+      - "443:443"
+    env_file: .env
+    restart: always
+    volumes:
+      - data:/server
+    networks:
+      - badtrip

@@ -1,0 +1,94 @@
+
+/* Add to existing CSS */
+.forgot-password-container {
+  max-width: 400px;
+  margin: 100px auto;
+  padding: 2rem;
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(10px);
+  border-radius: 15px;
+  text-align: center;
+}
+
+.forgot-form {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.forgot-form input {
+  padding: 1rem;
+  border-radius: 10px;
+  border: 2px solid #00ff88;
+  background: rgba(255, 255, 255, 0.1);
+  color: #fff;
+  font-size: 1rem;
+}
+
+.forgot-form button {
+  padding: 1rem;
+  background: #00ff88;
+  color: #1a1a2e;
+  border: none;
+  border-radius: 10px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.forgot-form button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 5px 15px rgba(0, 255, 136, 0.3);
+}
+
+.back-to-login {
+  margin-top: 1rem;
+  color: #00ff88;
+  text-decoration: none;
+  display: inline-block;
+}
+
+.back-to-login:hover {
+  text-decoration: underline;
+}
+
+
+  function renderForgotPassword() {
+    const mainContentHTML = `
+      <div class="forgot-password-container">
+        <h2>Forgot Password</h2>
+        <p>Enter your email address or username to reset your password</p>
+        
+        <form class="forgot-form" onsubmit="handleForgotPassword(event)">
+          <input 
+            type="text" 
+            placeholder="Enter your email or username" 
+            required
+          >
+          <button type="submit">Reset Password</button>
+        </form>
+        
+        <a href="https://example.com/login" class="back-to-login">
+          Back to Login
+        </a>
+      </div>
+    `;
+    
+    document.getElementById('mainContent').innerHTML = mainContentHTML;
+  }
+
+  function handleForgotPassword(event) {
+    event.preventDefault();
+    const identifier = event.target.querySelector('input[type="text"]').value;
+    console.log('Password reset requested for:', identifier);
+    
+    // Show success message
+    const container = document.querySelector('.forgot-password-container');
+    container.innerHTML = `
+      <h2>Check Your Email</h2>
+      <p>We've sent password reset instructions to the email associated with: ${identifier}</p>
+      <a href="https://example.com/login" class="back-to-login">
+        Back to Login
+      </a>
+    `;
+  }
