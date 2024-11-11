@@ -3,8 +3,10 @@ from rest_framework import generics
 from .models import Room, Message
 from .serializers import RoomSerializer, MessageSerializer
 from django.http import JsonResponse
-from rest_framework.decorators import api_view
+from rest_framework.decorators import api_view, authentication_classes, permission_classes
 from rest_framework.response import Response
+from rest_framework.permissions import IsAuthenticated
+from rest_framework.authentication import TokenAuthentication, SessionAuthentication
 
 
 # def HomeView(request):
@@ -30,7 +32,6 @@ from rest_framework.response import Response
 #         "room_name": existing_room.room_name,
 #     }
 #     return render(request, "room.html", context)
-
 def chat_room_data(request, room_name):
     messages = Message.objects.filter(room__room_name=room_name)
     messages_data = [
@@ -51,11 +52,11 @@ def get_room_name(user1, user2):
 
 
 @api_view(['GET'])
+@authentication_classes([TokenAuthentication, SessionAuthentication])
+@permission_classes([IsAuthenticated])
 def RoomList(request, username):
-    roomName = get_room_name("nelallo", username)  # must noaman be changed
-    print("this is the roomName = ", roomName)
-    # print("this is the username = ", username)
-    # print("this is the request.user.username = ", request)
+    roomName = get_room_name(request.user.username, username)
+    user1 = request.user.username
     try:
         room = Room.objects.get(room_name=roomName)
         serializer = RoomSerializer(room)
@@ -68,7 +69,11 @@ def RoomList(request, username):
 
 
 @api_view(['GET'])
+@authentication_classes([TokenAuthentication, SessionAuthentication])
+@permission_classes([IsAuthenticated])
 def MessageList(request, room_name):
+    if room_name == 'undefined':
+        return Response({"error": "Invalid room name"}, status=400)
     try:
         room = Room.objects.get(room_name=room_name)
         try:

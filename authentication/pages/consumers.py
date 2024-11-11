@@ -7,7 +7,7 @@ class ChatConsumer(AsyncWebsocketConsumer):
 
     async def connect(self):
         self.room_name = f"room_{self.scope['url_route']['kwargs']['room_name']}"
-        print(f"Trying to connect to room: {self.room_name}")  # Debugging statement
+        # print(f"Trying to connect to room: {self.room_name}")  # Debugging statement
         await self.channel_layer.group_add(self.room_name, self.channel_name)
         await self.accept()
 

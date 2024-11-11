@@ -72,20 +72,38 @@ INSTALLED_APPS = [
 ]
 
 
-# Configure REST Framework to use JWTAuthentication 
 REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES': [
+        'rest_framework.authentication.SessionAuthentication',
+        'rest_framework.authentication.BasicAuthentication',
+        'rest_framework.authentication.TokenAuthentication',
+    ],
+    'DEFAULT_PERMISSION_CLASSES': [
+        'rest_framework.permissions.IsAuthenticated',
+    ],
+}
+
+# REST_FRAMEWORK = {
+#     'DEFAULT_AUTHENTICATION_CLASSES': [
+#         'rest_framework.authentication.SessionAuthentication',
+#     ],
+# }
+
+# Configure REST Framework to use JWTAuthentication 
+# REST_FRAMEWORK = {
+    
     # 'DEFAULT_AUTHENTICATION_CLASSES': (
         # 'rest_framework_simplejwt.authentication.JWTAuthentication',
     # ),
-}
+# }
 
 MIDDLEWARE = [
     'corsheaders.middleware.CorsMiddleware',  # Keep this first
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',  # Only need this once
-        'django.contrib.auth.middleware.AuthenticationMiddleware',  # Required for `request.user`
-
+    'django.contrib.auth.middleware.AuthenticationMiddleware',  # Required for `request.user`
+    'django.contrib.auth.middleware.AuthenticationMiddleware',
     # 'django.middleware.csrf.CsrfViewMiddleware',
     'accounts.middleware.DisableCSRF',
     'accounts.middleware.JWTAuthenticationMiddleware',
