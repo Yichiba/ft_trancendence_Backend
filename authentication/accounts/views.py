@@ -234,9 +234,10 @@ class RegisterView(APIView):
         if serializer.is_valid():
             user = serializer.save()
             if user is not None:
-                response = remote_login.login(request, user)
-                return response  
-        return Response({'success': False,'message': serializer.errors}, status=status.HTTP_200_OK)
+                response = Response({'success': True,'message': 'Registered successfully. Please login to continue.'}, status=status.HTTP_200_OK)
+                return response    
+        print("serialiser errors : ",serializer.errors)
+        return Response({'success': False,'message': serializer.errors}, status=404)
 
 class home_view(APIView):
     @middleware.requires_authentication
@@ -261,13 +262,6 @@ def login_with_42(request):
     redirect_url = f"{auth_url}?{string_params}"
     print(" ouuuut redirect_url = ",redirect_url)
     return redirect(redirect_url)
-
-
-class profile(APIView):
-    def get(self,request):
-        pass
-
-
 
 
 
