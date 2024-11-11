@@ -105,8 +105,8 @@ function renderTopBar() {
 
 
   function render_42_login() {
-    window.location.href = 'http://127.0.0.1:8000/login/42/'
-}
+    window.location.href = window.location.origin + "/backend" + '/login/42/';
+  }
 
 
 
@@ -195,7 +195,7 @@ function sendCodeOauth() {
     const urlParams = new URLSearchParams(window.location.search);
     const code = urlParams.get('code');
     console.log('Code:', code);
-    fetch('http://127.0.0.1:8000/login/42/callback/?code='+code,{
+    fetch(window.self.origin +'/backend' + '/login/42/callback/?code='+code,{
       method: 'GET',
       credentials: 'include', // Only include this if you need cookies/auth
       headers: {
@@ -277,7 +277,7 @@ function handleLogin(event) {
     };
     console.log("Login attempt:", loginData);
     // Send POST request to the server's login endpoint
-    fetch("http://127.0.0.1:8000/login/", {  // Replace with your API endpoint
+    fetch(window.self.origin +'/backend' + 'login/', {  // Replace with your API endpoint
         method: "POST",
         headers: {
             "Content-Type": "application/json"
@@ -336,7 +336,7 @@ function handleSignup(event) {
     };
 
     // Send a POST request to the server
-    fetch('http://127.0.0.1:8000/register/', {
+    fetch(window.self.origin +'/backend' +' register/', {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json'
@@ -388,7 +388,7 @@ function handleSignup(event) {
 function hanleLogoutBtn(event){
         event.preventDefault(); // Prevent the default link behavior
 
-        fetch('http://127.0.0.1:8000/logout/', {
+        fetch(window.self.origin +'/backend' + '/logout/', {
             method: 'post',
             credentials: 'include',  // Important for cookie handling
         })
@@ -410,7 +410,7 @@ function hanleLogoutBtn(event){
 // Call renderHomePage to initialize the entire page
 
 function renderUserProfile() {
-    fetch('http://127.0.0.1:8000/users/me', {
+    fetch(window.self.origin +'/backend' + ' /users/me', {
         method: 'GET',
         credentials: 'include',  // Important for cookie handling
     })

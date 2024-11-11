@@ -24,7 +24,7 @@ function generateProfileHeader(friend,appContainer) {
                 <button class="reject-btn"  id="reject-btn">Reject </button>
             </div>
             ` : friend.sent ? `
-                <button id="reject-btn"  class="edit-profile-btn">Cancel Friend Request</button>
+                <button id="reject-btn"  class="reject-btn">Cancel Friend Request</button>
             ` : friend.username === user.username ? `
                     <button id="edit-profile-btn" class="edit-profile-btn">Edit Profile</button>
                 ` : `
@@ -61,16 +61,23 @@ function generateProfileHeader(friend,appContainer) {
 
 
 export async function acceptFriend(friend,appContainer) {
+    let username;
+    if (typeof friend === 'object'){
+        username = friend.username;
+    }else
+        username = friend;
     console.log("from acceptFriend");
-    console.log('Accepting friend:', friend);
-    const response = await fetch(`http://127.0.0.1:8000/accept/${friend.username}`, {   
+    const response = await fetch(`${window.self.origin}/backend/accept/${username}`, {   
         method: 'POST',
         credentials: 'include',
     });
 
     const data = await response.json();
-    alert(data.message);
-    navigateTo('/profile/'+friend.username,appContainer);
+    // alert(data.message);
+    if (typeof friend === 'object')
+        navigateTo('/profile/'+username,appContainer);
+    else
+        window.location.reload();
 
 }
 
@@ -86,7 +93,7 @@ export async function acceptFriend(friend,appContainer) {
     });
 
     const data = await response.json();
-    alert(data.msg);
+    // alert(data.msg);
     navigateTo('/profile/'+friend.username,appContainer);
     
 }
@@ -101,7 +108,7 @@ export async function cancelFriend(friend,appContainer) {
     });
     console.log("response",response);
     const data = await response.json();
-    alert(data.message);
+    // alert(data.message);
     navigateTo('/profile/'+friend.username,appContainer);
 }
 

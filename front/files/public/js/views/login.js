@@ -16,7 +16,7 @@ export function renderLoginPage(appContainer) {
         </div>
         <button type="submit" class="submit-btn">Login</button>
     </form>
-        <a href="/remotelogin" class="button" >Login With 42</a>
+        <a href="/remotelogin" class="button"  navigateTo(/remote)>Login With 42</a>
         <div class="link-container">
             <a href="/signup" onclick="navigateTo('/signup', appContainer); return false;" class="link">Sign Up</a>
             <button id='forget-btn' class="link">Forgot Password?</button>
@@ -60,7 +60,7 @@ async function handleLogin(event,appContainer) {
     };
     console.log("Login attempt:", loginData);
     // Send POST request to the server's login endpoint
-    fetch("http://127.0.0.1:8000/login/", {  // Replace with your API endpoint
+    fetch(window.self.origin + "/backend/login/", {  // Replace with your API endpoint
         method: "POST",
         headers: {
             "Content-Type": "application/json"

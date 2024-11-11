@@ -8,4 +8,4 @@ else
     pip3 install -r authentication/requirement_home.txt
 fi
 
-python3 authentication/manage.py  runserver
+python3 authentication/manage.py  runserver 0.0.0.0:8000

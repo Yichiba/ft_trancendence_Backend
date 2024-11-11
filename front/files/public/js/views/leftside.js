@@ -4,7 +4,7 @@ import { navigateTo } from '../router.js';
 
 console.log('from renderLeftSidebar');
 export async function fetchFriends() {
-    const response = await fetch('http://127.0.0.1:8000/friends/', {
+    const response = await fetch(window.self.origin +'/backend' + '/friends/', {
         method: 'GET',
         credentials: 'include'
     });
@@ -24,11 +24,11 @@ export function renderLeftSidebar(appContainer) {
 
         const response = await fetchFriends();
         const friendsData = response.data.friends;
-        console.log("friendsData",friendsData);
+        console.log("friendsData from leeeeeeft side ",friendsData);
 
         const friendsHTML = friendsData.map(friend => `
             <div class="friend-item">
-                <img class="friend-avatar" src="http://127.0.0.1:8000${friend.picture}" alt="${friend.username}'s avatar"   width="40" height="40">
+                <img class="friend-avatar" src="${window.self.origin}/backend/${friend.profile_picture}" alt="${friend.username}'s avatar"   width="40" height="40">
                 <div class="online-indicator ${friend.status ? 'online' : 'offline'}"></div>
                 <div class="friend-info">
                     <div class="friend-name">${friend.username}</div>
@@ -64,7 +64,7 @@ export function renderLeftSidebar(appContainer) {
 export function handleLogoutBtn(event, appContainer) {
     event.preventDefault();
 
-    fetch('http://127.0.0.1:8000/logout/', {
+    fetch(window.self.origin +'/backend' + '/logout/', {
         method: 'POST',
         credentials: 'include'
     })
@@ -86,14 +86,16 @@ export function handleLogoutBtn(event, appContainer) {
 
 
 export async function fetch_users(username) {
+    let data 
+    
     console.log(`from fetch_usersee . getting ${username}'s data`)
     try {
-        const response = await fetch(`http://127.0.0.1:8000/users/${username}`, {
+        const response = await fetch(`${window.self.origin}/backend/users/${username}`, {
             method: 'GET',
             credentials: 'include'
         });
-        
-        const data = await response.json();
+        console.log("this si", `${window.self.origin}/users/${username}`);
+        data = await response.json();
         if (!response.ok) {
             return (data);
         }

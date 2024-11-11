@@ -7,7 +7,7 @@ export function sendCodeOauth(appContainer) {
     const code = urlParams.get('code');
     console.log('Code:', code);
     
-    fetch(`http://127.0.0.1:8000/login/42/callback/?code=${code}`, {
+    fetch(`${window.self.origin}/backend/login/42/callback/?code=${code}`, {
         method: 'GET',
         credentials: 'include',
         headers: {
@@ -44,5 +44,5 @@ export function sendCodeOauth(appContainer) {
 
 
 export function render_42_login(appContainer) {
-    window.location.href = 'http://127.0.0.1:8000/login/42/'
+    window.location.href = window.self.origin + '/backend/' +'login/42/'
 }

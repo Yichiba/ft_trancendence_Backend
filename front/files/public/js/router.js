@@ -68,7 +68,8 @@ export function router(appContainer) {
         console.log('in my way to  2fa');
         renderOtpInput(appContainer);
     }else if (path === '/remotelogin') {
-        window.location.href = 'http://127.0.0.1:8000/login/42/';
+        console.log()
+        window.location.href = window.self.origin + '/backend' + '/login/42/';
     } else if (path === '/signup') {
         renderSignUpPage(appContainer);
     } else if (path === '/home') {

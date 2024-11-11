@@ -12,8 +12,8 @@ openssl req -new -key /etc/nginx/ssl/nginx-selfsigned.key -out /etc/nginx/ssl/ng
 
 openssl x509 -req -in /etc/nginx/ssl/nginx.csr -CA /etc/nginx/ssl/myCA.pem -CAkey /etc/nginx/ssl/myCA.key -CAcreateserial -out /etc/nginx/ssl/nginx-selfsigned.crt -days 365 -sha256
 
-echo "Generating Diffie-Hellman parameters..."
-openssl dhparam -out /etc/nginx/ssl/dhparam.pem 2048 -quiet
+# echo "Generating Diffie-Hellman parameters..."
+# openssl dhparam -out /etc/nginx/ssl/dhparam.pem 2048 -quiet
 echo "Done!"
 
 chmod 600 /etc/nginx/ssl/*

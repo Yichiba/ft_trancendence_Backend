@@ -12,7 +12,6 @@ app.get('*', (req, res) => {
 
 // Start the server
 const PORT = 5500;
-const HOST = '0.0.0.0';
-app.listen(PORT, HOST, () => {
-    console.log(`Server running on http://${HOST}:${PORT}`);
+app.listen(PORT, '0.0.0.0', () => {
+    console.log(`Server running on http://0.0.0.0:${PORT}`);
 });

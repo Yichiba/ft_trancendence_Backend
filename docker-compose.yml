@@ -2,11 +2,17 @@ networks:
   badtrip:
     name: badtrip
 volumes:
-  data:
+  front:
     driver: local
     driver_opts:
       type: none
-      device: ./data
+      device: ./front/files
+      o: bind
+  back:
+    driver: local
+    driver_opts:
+      type: none
+      device: ./backend
       o: bind
 services:
   front:
@@ -16,7 +22,7 @@ services:
       - backend 
     restart: always
     volumes:
-      - data:/front
+      - front:/files
     networks:
       - badtrip
   backend:
@@ -25,7 +31,7 @@ services:
     env_file: .env
     restart: always
     volumes:
-      - data:/backend
+      - back:/backend
     networks:
       - badtrip
   server:
@@ -35,7 +41,5 @@ services:
       - "443:443"
     env_file: .env
     restart: always
-    volumes:
-      - data:/server
     networks:
       - badtrip

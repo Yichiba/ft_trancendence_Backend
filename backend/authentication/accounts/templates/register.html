@@ -131,11 +131,11 @@
                 confirm_password: document.getElementById('confirmPassword').value
             };
 
-            fetch('/register/', {  // Update this URL to match your backend endpoint
+            fetch(window.location.origin + '/register/', {  // Update this URL to match your backend endpoint
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
-                    {% comment %} 'X-CSRFToken': getCookie('csrftoken')  // If using Django's CSRF protection {% endcomment %}
+                    // {% comment %} 'X-CSRFToken': getCookie('csrftoken')  // If using Django's CSRF protection {% endcomment %}
                 },
                 body: JSON.stringify(formData)
             })

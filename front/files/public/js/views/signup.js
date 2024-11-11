@@ -51,7 +51,7 @@ document.getElementById('signupForm').addEventListener('submit', (event) => hand
 
 
 // Function to handle the signup form submission
-function handleSignup(event, appContainer) {    
+async function handleSignup(event, appContainer) {    
     event.preventDefault(); // Prevent the default form submission
 
     // Get the values from the form
@@ -61,6 +61,14 @@ function handleSignup(event, appContainer) {
     const email = document.getElementById('email').value;
     const password = document.getElementById('password').value;
     const password_confirm = document.getElementById('password-confirm').value;
+
+
+    if (password !== password_confirm) {
+        alert('Passwords do not match');
+        return;
+    }
+
+
 
     // Prepare the data to be sent
     const data = {
@@ -73,28 +81,46 @@ function handleSignup(event, appContainer) {
     };
     console.log('Signup data:', data);
     // Send a POST request to the server
-    fetch('http://127.0.0.1:8000/register/', {
+    const response = await fetch('http://127.0.0.1:8000/register/', {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json'
         },
         body: JSON.stringify(data)
-    })
-    .then(response => {
-        if (!response.ok) {
-            throw new Error(`HTTP error! status: ${response.status}`);
-        }
-        return response.json();
-    })
-    .then(data => {
-        console.log('Signup successful:', data);
-        alert('Signup successful! Please login to continue.');
-        navigateTo('/login',appContainer);
-        // Optionally redirect or display a success message
-    })
-    .catch(error => {
-        console.error('Signup error:', error);
     });
+    const Data = await response.json();
+
+    if (!response.ok) {
+        console.log('Signup failed:', Data.message); // Log the structure of Data.message
+    
+        // Check if Data.message is an object with field-specific errors
+        if (typeof Data.message === 'object' && Data.message !== null) {
+            // Iterate over each field's error messages
+            Object.keys(Data.message).forEach((field) => {
+                Data.message[field].forEach((error) => {
+                   if (field === 'username') {
+                        alert('Username error: ' + error);
+                    }
+                    if (field === 'email') {
+                        alert('Email error: ' + error);
+                    }
+                    
+                    if (field === 'password') {
+                        alert('Password error: ' + error);
+                    }
+                });
+            });
+        } else if (typeof Data.message === 'string') {
+            // If Data.message is a simple error message
+            alert(Data.message);
+        }
+        return;
+    }
+    
+    // Success case
+    alert(Data.message);
+    navigateTo('/login', appContainer);
+    
 }
 
 

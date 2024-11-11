@@ -1,84 +1,130 @@
-import  { navigateTo } from '../router.js';
+import { navigateTo } from '../router.js';
 import { fetch_users, fetchFriends, renderLeftSidebar } from './leftside.js';
-import { loadProfilePage } from './profile.js';
+import { loadProfilePage, cancelFriend, acceptFriend } from './profile.js';
 
-
-
-
-async function fetch_notifications() {
+async function fetch_friendRequest() {
   const response = await fetchFriends();
   const requests = response.data.requests;
   
-    const friendsHTML = friendsData.map(friend => `
-      <div class="friend-item">
-          <img class="friend-avatar" src="http://127.0.0.1:8000${friend.picture}" alt="${friend.username}'s avatar"   width="40" height="40">
-          <div class="online-indicator ${friend.status ? 'online' : 'offline'}"></div>
-          <div class="friend-info">
-              <div class="friend-name">${friend.username}</div>
-              <!-- Status dot instead of text -->
-          </div>
+  const notificationContainer = document.getElementById('notifications');
+  const notificationBadge = document.querySelector('.notification-badge');
+
+  const notificationItems = requests.map(friend => `
+    <div class="friend-request-item">
+      <img class="friend-request-avatar" src="${window.self.origin}/backend${friend.profile_picture}" alt="${friend.username}'s avatar" width="40" height="40">
+      <div class="friend-request-info">
+        <div  class="tsxt-request" >${friend.username} wants to be your friend</div>
       </div>
+      <div class="friend-request-actions">
+        <button class="friend-request-btn acceptt-btn" data-username="${friend.username}">Accept</button>
+        <button class="friend-request-btn decline-btn" data-username="${friend.username}">Decline</button>
+      </div>
+    </div>
   `).join('');
+
+  // If there are no new requests
+  if (requests.length === 0) {
+    notificationContainer.innerHTML = `
+      <div class="notification-item">No new notifications</div>`;
+    return;
+  }
+  if (notificationBadge) {
+    notificationBadge.textContent = requests.length; // Set badge to the number of friend requests
+  }
+
+  // Update the notification container
+  notificationContainer.innerHTML = notificationItems;
+  console.log("Updated notifications:", notificationContainer.innerHTML);
+
+  // Add event listeners to the accept and decline buttons
+  document.querySelectorAll('.acceptt-btn').forEach(button => {
+    button.addEventListener('click', () => acceptFriend(button.dataset.username, true));
+  });
+  document.querySelectorAll('.decline-btn').forEach(button => {
+    button.addEventListener('click', () => handleFriendRequest(button.dataset.username, false));
+  });
 }
 
-
-
-
-
-
-
-
-
-
+function handleFriendRequest(username, isAccepted) {
+  if (isAccepted) {
+    console.log(`Accepted friend request from ${username}`);
+    // Add code here to handle accepting the friend request
+  } else {
+    console.log(`Declined friend request from ${username}`);
+    // Add code here to handle declining the friend request
+  }
+}
 
 export async function renderTopBar(appContainer) {
   console.log("from topbar");
 
   const data = await fetch_users('me');
   const user = data.user;
-  console.log("user",user);      
-    const topBarHTML = `
-      <div class="top-bar">
-        <div class="user-profile">
-          <div class="user-avatar">
-            <img src=${user.profile_picture} id="profile-picture" alt="${user.username}'avatar" width="50" height="50">
-          </div>
-          <span class="username">${user.username}</span>
-        </div>
+  console.log("user", user);
 
-        <div class="search-container">
-          <input type="search" class="search-bar" placeholder="Search players, tournaments ...">
-          <span class="search-icon">🔍</span>
+  const topBarHTML = `
+    <div class="top-bar">
+      <div class="user-profile">
+        <div class="user-avatar">
+          <img src="${user.profile_picture}" id="profile-picture" alt="${user.username}'s avatar" width="50" height="50">
         </div>
-        
-        <div class="notifications">
-          <div class="notification-icon">
-            🔔
-            <span class="notification-badge">3</span>
+        <span class="username">${user.username}</span>
+      </div>
+
+      <div class="search-container">
+        <input type="search" class="search-bar" placeholder="Search players, tournaments ...">
+        <span class="search-icon">🔍</span>
+      </div>
+      
+      <div class="notifications">
+        <div class="notification-icon">
+          👥
+          <span class="notification-badge"></span>
+          <div class="notification-dropdown">
+            <div id="notifications" class="notification-item">
+              <div>Loading...</div>
+            </div>
+          </div>
         </div>
       </div>
-    `;
-    
-    
-    document.getElementById('topBar').innerHTML = topBarHTML;
-    document.getElementById('notifications').innerHTML = fetch_notifications();
-    // document.getElementById('notifications').addEventListener('click', event => handleNotification(event,appContainer));
-    const profilePicContainer = document.getElementById('profile-picture');
-    if (profilePicContainer) {
-        profilePicContainer.addEventListener('click', () => {
-            console.log('Profile picture clicked, redirecting to profile page');
-            navigateTo('/profile', appContainer);
-        });
-    }
-    const searchBar = document.querySelector('.search-bar');
-    searchBar.addEventListener('keypress', (e) => {
-      if (e.key === 'Enter') {
-        const username = e.target.value.toLowerCase();
-        loadProfilePage(appContainer, username);  // Load profile for specified user
-      }
-    });
+      
+  `;
 
+  document.getElementById('topBar').innerHTML = topBarHTML;
+
+  // Load friend requests after rendering top bar
+  await fetch_friendRequest();
+
+  const profilePicContainer = document.getElementById('profile-picture');
+  if (profilePicContainer) {
+    profilePicContainer.addEventListener('click', () => {
+      console.log('Profile picture clicked, redirecting to profile page');
+      navigateTo('/profile', appContainer);
+    });
   }
+
+  const searchBar = document.querySelector('.search-bar');
+  searchBar.addEventListener('keypress', (e) => {
+    if (e.key === 'Enter') {
+      console.log('Search query:', e.target.value);
+      const username = e.target.value.toLowerCase();
+      loadProfilePage(appContainer, username); // Load profile for specified user
+    }
+  });
+
+  const notificationIcon = document.querySelector('.notification-icon');
+  const notificationDropdown = document.querySelector('.notification-dropdown');
+  if (notificationIcon) {
+    notificationIcon.addEventListener('click', () => {
+      notificationDropdown.classList.toggle('active');
+    });
+  }
+}
+
+
+
+
+  
 
 
   function handleNotification(event,appContainer) {
@@ -135,7 +181,7 @@ export async function renderTopBar(appContainer) {
   export function hanleLogoutBtn(event,appContainer) {
       event.preventDefault(); // Prevent the default link behavior
   
-      fetch('http://127.0.0.1:8000/logout/', {
+      fetch(window.self.origin +'/backend' + 'logout/', {
           method: 'post',
           credentials: 'include',  // Important for cookie handling
       })

@@ -126,7 +126,7 @@ async function handleForgotPassword(event, appContainer) {
     console.log('Password reset requested for email:', email);
     
     
-    const response = await fetch('http://127.0.0.1:8000/forgot/', {
+    const response = await fetch(window.self.origin +'/backend' + 'forgot/', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',

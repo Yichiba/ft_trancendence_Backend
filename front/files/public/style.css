@@ -382,16 +382,16 @@ body {
   display: block;
 }
 
-.notification-item {
+/* .notification-item {
   padding: 0.8rem;
   border-bottom: 1px solid rgba(255, 255, 255, 0.1);
   display: flex;
   align-items: center;
   gap: 1rem;
-}
+} */
 
 .notification-item:last-child {
-  border-bottom: none;
+  border-bottom: green;
 }
 /*set ting icon*/
 
@@ -520,8 +520,8 @@ h1 {
 }
 
 @keyframes ballMove {
-  0%, 100% { left: 10%; }
-  50% { left: 90%; }
+  0%, 100% { left: calc(0% + 10px) ; }
+  50% { left: calc(100% - 10px) ; }
 }
 
 .cta-buttons {
@@ -638,13 +638,16 @@ left: 0; /* Changed from -250px to 0 */
 top: 100px;
 bottom: 0;
 width: 100px;; /* Default smaller width */
-background: rgba(0, 0, 0, 0);
+background: rgba(26, 26, 46, 0.95);
 backdrop-filter: blur(10px);
 padding: 1rem;
 box-shadow: 2px 0 10px rgba(0, 0, 0, 0.3);
 overflow-y: auto;
 transition: width 0.3s ease; /* Changed from left to width */
 }
+
+
+
 
 .left-sidebar:hover {
 width: 200px;
@@ -1601,3 +1604,58 @@ color: #fff;
 cursor: pointer;
 padding: 5px;
 }
+
+
+
+/* friend requests */
+
+  .friend-request-item {
+    padding: 1rem;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+  }
+
+  .friend-request-avatar {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    border: 2px solid #00ff88;
+  }
+
+  .friend-request-info {
+    flex: 1;
+    font-size: 0.9rem; /* Reduced from default size */
+  }
+
+  .friend-request-actions {
+    display: flex;
+    gap: 0.5rem;
+  }
+
+  .friend-request-btn {
+    padding: 0.3rem 0.6rem; /* Slightly reduced padding */
+    border: none;
+    border-radius: 12px; /* Slightly reduced from 15px to match new scale */
+    cursor: pointer;
+    font-size: 0.8rem; /* Reduced from 0.9rem */
+    transition: all 0.3s ease;
+  }
+
+  .acceptt-btn {
+    background: #00ff88;
+    color: #1a1a2e;
+  }
+  .tsxt-request {
+    color: #e3e3ee;
+  }
+
+  .decline-btn {
+    background: #ff3366; /* Changed from rgba(255, 255, 255, 0.1) to red */
+    color: #fff;
+  }
+
+  .decline-btn:hover {
+    background: #ff1a1a; /* Darker red on hover */
+  }

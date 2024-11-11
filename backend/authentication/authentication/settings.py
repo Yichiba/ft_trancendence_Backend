@@ -27,9 +27,9 @@ EMAIL_HOST_PASSWORD = 'aehm cobk lhfd fevc'
 
 
 
-UID = 'u-s4t2ud-a05788a6625086387900c9b247f537cf8039976475a37852d1aeaa4f164704b0'
-SECRET = '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'
-REDIRECT_URI = 'http://127.0.0.1:5500/callback'
+UID = 'u-s4t2ud-2714000a3f77fac2b02d7c34b68df1b337c9ebe35e55f26a041142f7276b1730'
+SECRET = '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'
+REDIRECT_URI = 'https://10.12.179.151/callback'
 
 JWT_SECRET_KEY="yichiba94@"
 
@@ -49,7 +49,7 @@ SECRET_KEY = 'django-insecure-6rxobww5kvupqi&2v)#)#7-0uspypmkli_5yj*+b*l(6yvdib(
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['*']
 
 
 # Application definition
@@ -93,11 +93,6 @@ CORS_ALLOW_ALL_ORIGINS = True
 CORS_ALLOW_CREDENTIALS = True
 
 # If you want to be more specific about allowed origins (more secure):
-CORS_ALLOWED_ORIGINS = [
-    "http://127.0.0.1:5500",
-    "http://localhost:5500",
-    # Add any other origins you need
-]
 
 # Add allowed methods
 CORS_ALLOW_METHODS = [

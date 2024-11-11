@@ -22,7 +22,7 @@ function fetchTwoFAData(token, appContainer) {
     console.log(appContainer instanceof HTMLElement ,appContainer);
 
 
-    fetch(`http://127.0.0.1:8000/2fa/?token=${token}`, {
+    fetch(`${window.self.origin}/backend/2fa/?token=${token}`, {
         method: 'GET',
         headers: {
             'Content-Type': 'application/json',
@@ -142,7 +142,7 @@ function setupOtpSubmission(token, appContainer) {
 function verifyOtp(token, otp, appContainer) {
     console.log('from verifyOtp');
     console.log('Token:', token);
-    fetch(`http://127.0.0.1:8000/2fa/?token=${token}`, {
+    fetch(`${window.self.origin}/backend/2fa/?token=${token}`, {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
