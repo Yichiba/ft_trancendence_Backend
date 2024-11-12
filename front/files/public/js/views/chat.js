@@ -67,9 +67,9 @@ export async function renderChatContent(appContainer, username) {
   const chatViewHTML = `
   <div class="chat-container">
   <div class="chat-header">
-  <div class="" style="position: relative;">
+  <div class="photo" style="position: relative;">
   <img class="friend-avatar" src="${data2.user.profile_picture}" alt="${data2.user.username} avatar" width="40" height="40">
-  <div class="online-indicator"></div>
+  <div class="online-indicator1"></div>
   <div class="friend-info">
   <div class="friend-name"></div>
   <div class="friend-status">${data2.user.username}</div>
@@ -121,15 +121,17 @@ export async function renderChatContent(appContainer, username) {
       if (msg.sender === user1) {
         newDiv.classList.add("message-sent");
         newDiv.innerHTML = `
-          <p class="msg-body">${msg.message}</p>
+          <p class="msg-body"></p>
           <span class="sender">Me</span>
         `;
+        newDiv.querySelector(".msg-body").textContent = msg.message;
       } else {
         newDiv.classList.add("received");
         newDiv.innerHTML = `
-          <p class="msg-body">${msg.message}</p>
+          <p class="msg-body"></p>
           <span class="sender">${msg.sender}</span>
         `;
+        newDiv.querySelector(".msg-body").textContent = msg.message;
       }
       chatContainer.appendChild(newDiv);
     });
@@ -170,14 +172,16 @@ export async function renderChatContent(appContainer, username) {
         messageInput.value = "";
       }
       chatsDiv.innerHTML += `<div class="message message-sent">
-        <p class="msg-body">${message}</p>
+        <p class="msg-body"></p>
         <span class="sender">Me</span>
         </div>`;
+      chatsDiv.lastElementChild.querySelector(".msg-body").textContent = message;
     } else {
       chatsDiv.innerHTML += `<div class="message message-received">
-        <p class="msg-body">${message}</p>
+        <p class="msg-body"></p>
         <span class="sender">${sender}</span>
         </div>`;
+      chatsDiv.lastElementChild.querySelector(".msg-body").textContent = message;
     }
     scrollToBottom();
   });
