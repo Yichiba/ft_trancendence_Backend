@@ -1,5 +1,5 @@
 FROM node:19-bullseye
-RUN apt update && apt install python3-pip python3-venv -y 
+RUN apt update -y 
 COPY files files
 COPY start.sh start.sh
 

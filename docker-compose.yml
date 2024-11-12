@@ -2,23 +2,23 @@ networks:
   badtrip:
     name: badtrip
 volumes:
-  front:
-    driver: local
-    driver_opts:
-      type: none
-      device: /Users/nelallao/Desktop/docker_version/front/files
-      o: bind
-  back:
-    driver: local
-    driver_opts:
-      type: none
-      device: /Users/nelallao/Desktop/docker_version/backend
-      o: bind
+  # front:
+  #   driver: local
+  #   driver_opts:
+  #     type: none
+  #     device: /Users/nelallao/Desktop/docker_version/front/files
+  #     o: bind
+  # back:
+  #   driver: local
+  #   driver_opts:
+  #     type: none
+  #     device: /Users/nelallao/Desktop/docker_version/backend
+  #     o: bind
   database:
     driver: local
     driver_opts:
       type: none
-      device: /Users/nelallao/database
+      device: /Users/atoukmat/database
       o: bind
 
 services:
@@ -29,8 +29,7 @@ services:
     #   - 5432:5432
     volumes:
       - database:/var/lib/postgresql/data
-       - ./init-db.sql:/docker-entrypoint-initdb.d/init-db.sql
-    env_file: /Users/nelallao/Desktop/docker_version/.env
+    env_file: .env
     networks:
       - badtrip
 
@@ -40,8 +39,8 @@ services:
     depends_on:
       - backend 
     restart: always
-    volumes:
-      - front:/files
+    # volumes:
+    #   - front:/files
     networks:
       - badtrip
   backend:
@@ -51,8 +50,8 @@ services:
       - postgre
     env_file: .env
     restart: always
-    volumes:
-      - back:/backend
+    # volumes:
+    #   - back:/backend
     networks:
       - badtrip
   server:

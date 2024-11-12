@@ -13,9 +13,10 @@ while ! nc -z postgres 5432; do
     sleep 1
 done
 
+python3 authentication/manage.py makemigrations
 
-python3 backend/authentication/manage.py migrate
+python3 authentication/manage.py migrate
 echo "database gote migrate successfly..."
 
-python3 backend/authentication/manage.py  runserver 0.0.0.0:8000
+python3 authentication/manage.py  runserver 0.0.0.0:8000
 
