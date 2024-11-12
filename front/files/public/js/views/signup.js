@@ -81,7 +81,7 @@ async function handleSignup(event, appContainer) {
     };
     console.log('Signup data:', data);
     // Send a POST request to the server
-    const response = await fetch('http://127.0.0.1:8000/register/', {
+    const response = await fetch('${window.self.origin}/register/', {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json'

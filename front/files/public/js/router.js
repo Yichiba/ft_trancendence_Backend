@@ -47,12 +47,10 @@ export function router(appContainer) {
         renderEditProfile(appContainer);
     }else if (path.startsWith('/profile')) {
         const profileMatch = path.match(/^\/profile\/([^/]+)$/);
-        console.log('profileMatch',profileMatch);
         if (profileMatch) {
 
             loadProfilePage(appContainer, profileMatch[1]);  // Load profile for specified user
         } else {
-            console.log('fromrouteeeeeeeeeeeeeeerererererrererrerrererrerererrerere!!!!!!!!!!!!!!!!!! profile');
             loadProfilePage(appContainer,'me');  // Default profile page for current user
         }
     }else if (path.startsWith('/chat')) {

@@ -86,15 +86,13 @@ export function handleLogoutBtn(event, appContainer) {
 
 
 export async function fetch_users(username) {
-    let data 
-    
-    console.log(`from fetch_usersee . getting ${username}'s data`)
-    try {
+    let data
+    console.log("from fetch users", window.self.origin);
+        try {
         const response = await fetch(`${window.self.origin}/backend/users/${username}`, {
             method: 'GET',
             credentials: 'include'
         });
-        console.log("this si", `${window.self.origin}/users/${username}`);
         data = await response.json();
         if (!response.ok) {
             return (data);

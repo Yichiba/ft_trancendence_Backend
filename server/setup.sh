@@ -11,6 +11,7 @@ openssl genrsa -out /etc/nginx/ssl/nginx-selfsigned.key 2048
 openssl req -new -key /etc/nginx/ssl/nginx-selfsigned.key -out /etc/nginx/ssl/nginx.csr -subj "/CN=$DOMAIN_NAME"
 
 openssl x509 -req -in /etc/nginx/ssl/nginx.csr -CA /etc/nginx/ssl/myCA.pem -CAkey /etc/nginx/ssl/myCA.key -CAcreateserial -out /etc/nginx/ssl/nginx-selfsigned.crt -days 365 -sha256
+# sed -i -e "s/backend/$(getent hosts beckend | awk '{print $1}')/g" /etc/nginx/sites-available/default
 
 # echo "Generating Diffie-Hellman parameters..."
 # openssl dhparam -out /etc/nginx/ssl/dhparam.pem 2048 -quiet

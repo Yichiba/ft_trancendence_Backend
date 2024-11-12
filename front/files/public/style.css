@@ -56,6 +56,21 @@ body {
     box-shadow: 0 15px 35px rgba(0,0,0,0.1);
 }
 
+
+#msg-form {
+  width: 100%;
+  display: flex;
+    justify-content: space-between;
+    gap: 20px;
+}
+
+.sender {
+  position: absolute;
+  bottom: 0;
+  right: 9px;
+  color: #7c7575;
+}
+
 .background-container {
   background: rgba(255, 255, 255, 0.95);
   width: 600px;
@@ -676,8 +691,8 @@ position: relative; /* Added to position the status dot */
 
 /* Hide friend info by default */
 .friend-info {
-opacity: 0;
-width: 0;
+width: fit-content;
+color: azure;
 transition: all 0.3s ease;
 }
 
@@ -687,12 +702,20 @@ opacity: 1;
 width: auto;
 }
 
-.friend-avatar {
-width: 40px;
-height: 40px;
-border-radius: 50%;
-border: 2px solid #00ff88;
+.friend-info {
+  /* opacity: 20; */
+  width: fit-content;
+  color: azure;
+  transition: all 0.3s ease;
 }
+
+
+.friend-avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  border: 2px solid #00ff88;
+  }
 
 .online-indicator {
 width: 8px;
@@ -1288,6 +1311,8 @@ flex-direction: column;
 }
 
 .chat-header {
+display: flex;
+justify-content: center;
 padding: 1rem;
 border-bottom: 1px solid rgba(255, 255, 255, 0.1);
 display: flex;
@@ -1304,27 +1329,35 @@ flex-direction: column;
 gap: 1rem;
 }
 
-.message {
+ .message {
+width: 70%;
+margin: 5px 0;
 max-width: 70%;
 padding: 0.8rem 1rem;
 border-radius: 15px;
 position: relative;
-}
+} 
 
 .message-received {
 background: rgba(255, 255, 255, 0.1);
 align-self: flex-start;
 border-bottom-left-radius: 5px;
 }
-
 .message-sent {
-background: rgba(0, 255, 136, 0.2);
-align-self: flex-end;
-border-bottom-right-radius: 5px;
+  overflow-wrap: break-word;
+  text-wrap: wrap;
+  background: rgba(0, 255, 136, 0.2);
+  border-bottom-right-radius: 5px;
+  align-self: flex-end;
+  margin-left: auto; 
+  margin-right: 5px; 
+  max-width: 70%;
 }
 
 .chat-input {
+  
 padding: 1rem;
+width: 100%;
 border-top: 1px solid rgba(255, 255, 255, 0.1);
 display: flex;
 gap: 1rem;
@@ -1659,3 +1692,8 @@ padding: 5px;
   .decline-btn:hover {
     background: #ff1a1a; /* Darker red on hover */
   }
+  .friend-name {
+    color: #ffffff; /* White text */
+    background-color: #333333; /* Dark background for contrast */
+  }
+  

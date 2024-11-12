@@ -60,7 +60,6 @@ export async function renderTopBar(appContainer) {
 
   const data = await fetch_users('me');
   const user = data.user;
-  console.log("user", user);
 
   const topBarHTML = `
     <div class="top-bar">

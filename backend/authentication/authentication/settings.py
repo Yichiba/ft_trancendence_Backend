@@ -23,13 +23,15 @@ EMAIL_USE_TLS = True
 EMAIL_HOST_USER = 'youssefichiba@gmail.com'
 EMAIL_HOST_PASSWORD = 'aehm cobk lhfd fevc'
 
+# SECURE_SSL_REDIRECT = True
 
 
 
+UID = 'u-s4t2ud-e603faeb043593848ed0606065f5091f853421079de2b07c95868c0314f9210b'
 
-UID = 'u-s4t2ud-833c86bd1d600ea4dc51f3e3714e08e9cebd69973644d5100833beb672fb663a'
-SECRET = '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'
-REDIRECT_URI = 'https://10.11.4.9/callback'
+SECRET = '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'
+REDIRECT_URI = 'https://10.30.252.193/callback'
+
 
 JWT_SECRET_KEY="yichiba94@"
 
@@ -56,6 +58,7 @@ ALLOWED_HOSTS = ['*']
 
 INSTALLED_APPS = [
     # 'django.contrib.admin',
+    'daphne',
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',

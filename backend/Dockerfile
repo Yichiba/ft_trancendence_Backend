@@ -1,5 +1,8 @@
-FROM debian:bullseye
-RUN apt update -y && apt install python3-pip python3-venv -y
+FROM python:alpine
+
+COPY authentication/requirement_home.txt .
+
+RUN pip install --no-cache-dir -r requirement_home.txt
 
 COPY authentication authentication
 COPY media media

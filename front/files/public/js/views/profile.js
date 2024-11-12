@@ -6,10 +6,8 @@ import { renderEditProfile } from './updateProfile.js';
 import { renderChatView } from './chat.js';
 import { navigateTo } from '../router.js';
 function generateProfileHeader(friend,appContainer) {
-    console.log("from generateProfileHeader");
     const user = JSON.parse(localStorage.getItem('me'));
-    console.log("friend",friend);
-    console.log("user",user);
+
     const profileHeaderHTML = `
     <div class="profile-header">
         <img class="profile-avatar" src="${friend.profile_picture || 'default_avatar_url'}" alt="${friend.username}'s avatar" width="150" height="150">
@@ -34,12 +32,13 @@ function generateProfileHeader(friend,appContainer) {
             </div>
         </div>
     `;
+    console.log("friend",friend);
     document.getElementById('profile-header').innerHTML = profileHeaderHTML;
     if (friend.username === user.username) {
         document.getElementById('edit-profile-btn').addEventListener('click', event => renderEditProfile(appContainer));
     }
     if (friend.friend) {
-        document.getElementById('send-msg-btn').addEventListener('click', event => renderChatView(appContainer));
+        document.getElementById('send-msg-btn').addEventListener('click', event => renderChatView(appContainer, friend.username));
         document.getElementById('reject-btn').addEventListener('click', event => cancelFriend(friend,appContainer));
     }
     else if (friend.recived) {

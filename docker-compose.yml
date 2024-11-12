@@ -6,29 +6,31 @@ volumes:
     driver: local
     driver_opts:
       type: none
-      device: /Users/atoukmat/yichiba/front/files
+      device: /Users/nelallao/Desktop/docker_version/front/files
       o: bind
   back:
     driver: local
     driver_opts:
       type: none
-      device: /Users/atoukmat/yichiba/backend
+      device: /Users/nelallao/Desktop/docker_version/backend
       o: bind
   database:
     driver: local
     driver_opts:
       type: none
-      device: /Users/atoukmat/database
+      device: /Users/nelallao/database
       o: bind
 
 services:
   postgres:
     image: postgres:14-alpine
+    container_name: postgres
     # ports:
     #   - 5432:5432
     volumes:
       - database:/var/lib/postgresql/data
-    env_file: .env
+       - ./init-db.sql:/docker-entrypoint-initdb.d/init-db.sql
+    env_file: /Users/nelallao/Desktop/docker_version/.env
     networks:
       - badtrip
 

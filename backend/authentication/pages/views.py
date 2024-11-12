@@ -51,37 +51,36 @@ def get_room_name(user1, user2):
 
 
 @api_view(['GET'])
-def RoomList(request,username):
-    print("from RoomList")
-
+def RoomList(request, username):
     roomName = get_room_name(request.user.username, username)
-    # serializer_class = RoomSerializer
-    print("roomName",roomName)
-    room= Room()
+    user1 = request.user.username
+    
     try:
         room = Room.objects.get(room_name=roomName)
-        return Response(f"room_Name : {room.room_name}", status=200)
-    except room.DoesNotExist:
-        room=Room.objects.create(room_name=roomName, user1=request.user.username, user2=username)
+        serializer = RoomSerializer(room)
+        return Response(serializer.data, status=200)
+    except Room.DoesNotExist:
+        room = Room.objects.create(room_name=roomName, user1=request.user.username, user2=username)
         room.save()
-        return Response(f"room_name{room.room_name}", status=200)
-
+        serializer = RoomSerializer(room)
+        return Response(serializer.data, status=201)
 
 @api_view(['GET'])
-def MessageList(request,room_name):
-    # serializer_class = MessageSerializer
+def MessageList(request, room_name):
+    if room_name == 'undefined':
+        return Response({"error": "Invalid room name"}, status=400)
     try:
         room = Room.objects.get(room_name=room_name)
-        room_id = room.id
         try:
-            message  = Message.objects.get(room=room_id)
-            print("message",message)
-            return Response(f"message :{message}", status=200)
+            messages = Message.objects.filter(room=room)
+            serializer = MessageSerializer(messages, many=True)
+            return Response(serializer.data, status=200)
         except Message.DoesNotExist:
-            message = None
             return Response({"message": "No message found"}, status=404)
     except Room.DoesNotExist:
         return Response({"message": "No room found"}, status=404)
+
+    
     # print("from get")
     # print("request.user",request.user)
     # return self.list(request, *args, **kwargs)
