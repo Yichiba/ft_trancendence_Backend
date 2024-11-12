@@ -79,9 +79,9 @@ async function handleSignup(event, appContainer) {
         password: password,
         password_confirm: password_confirm
     };
-    console.log('Signup data:', data);
+    //('Signup data:', data);
     // Send a POST request to the server
-    const response = await fetch('http://127.0.0.1:8000/register/', {
+    const response = await fetch(`${window.location.origin}/backend/register/`, {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json'
@@ -91,7 +91,7 @@ async function handleSignup(event, appContainer) {
     const Data = await response.json();
 
     if (!response.ok) {
-        console.log('Signup failed:', Data.message); // Log the structure of Data.message
+        //('Signup failed:', Data.message); // Log the structure of Data.message
     
         // Check if Data.message is an object with field-specific errors
         if (typeof Data.message === 'object' && Data.message !== null) {

@@ -5,10 +5,10 @@ import { renderEditProfile } from './updateProfile.js';
 import { renderChatView } from './chat.js';
 import { navigateTo } from '../router.js';
 function generateProfileHeader(friend,appContainer) {
-    console.log("from generateProfileHeader");
+    //("from generateProfileHeader");
     const user = JSON.parse(localStorage.getItem('me'));
-    console.log("friend",friend);
-    console.log("user",user);
+    //("friend",friend);
+    //("user",user);
     const profileHeaderHTML = `
     <div class="profile-header">
         <img class="profile-avatar" src="${friend.profile_picture || 'default_avatar_url'}" alt="${friend.username}'s avatar" width="150" height="150">
@@ -42,7 +42,7 @@ function generateProfileHeader(friend,appContainer) {
         document.getElementById('reject-btn').addEventListener('click', event => cancelFriend(friend,appContainer));
     }
     else if (friend.recived) {
-        console.log("from recived");
+        //("from recived");
         document.getElementById('accept-btn').addEventListener('click', event => acceptFriend(friend,appContainer));
         document.getElementById('reject-btn').addEventListener('click', event => cancelFriend(friend,appContainer));
     }
@@ -65,7 +65,7 @@ export async function acceptFriend(friend,appContainer) {
         username = friend.username;
     }else
         username = friend;
-    console.log("from acceptFriend");
+    //("from acceptFriend");
     const response = await fetch(`${window.self.origin}/backend/accept/${username}`, {   
         method: 'POST',
         credentials: 'include',
@@ -84,8 +84,8 @@ export async function acceptFriend(friend,appContainer) {
 
 
  export async function addFriend(friend,appContainer) {
-    console.log("from addFriend");
-    console.log('Adding friend:', friend);
+    //("from addFriend");
+    //('Adding friend:', friend);
     const response = await fetch(`${window.self.origin}/backend/send/${friend.username}`, {
         method: 'POST',
         credentials: 'include',
@@ -99,13 +99,13 @@ export async function acceptFriend(friend,appContainer) {
 
 
 export async function cancelFriend(friend,appContainer) {
-    console.log("from cancelFriend");
-    console.log('canceling friend:', friend);
+    //("from cancelFriend");
+    //('canceling friend:', friend);
     const response = await fetch(`${window.self.origin}/backend/reject/${friend.username}`, {
         method: 'POST',
         credentials: 'include',
     });
-    console.log("response",response);
+    //("response",response);
     const data = await response.json();
     // alert(data.message);
     navigateTo('/profile/'+friend.username,appContainer);
@@ -173,7 +173,7 @@ function renderNotFoundPage(appContainer, username) {
 
 
 export async function loadProfilePage(appContainer,username) {
-    console.log("from loadProfilePage");
+    //("from loadProfilePage");
     try {
         const matchData = {
             recent_matches: [

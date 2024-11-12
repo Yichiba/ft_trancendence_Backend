@@ -194,7 +194,7 @@ function renderTopBar() {
 function sendCodeOauth() {
     const urlParams = new URLSearchParams(window.location.search);
     const code = urlParams.get('code');
-    console.log('Code:', code);
+    //('Code:', code);
     fetch(window.self.origin +'/backend' + '/login/42/callback/?code='+code,{
       method: 'GET',
       credentials: 'include', // Only include this if you need cookies/auth
@@ -228,7 +228,7 @@ function navigateTo(path) {
 
 // Router function to render the correct view based on URL path
 function router() {
-    console.log('Navigating to :', window.location.pathname);
+    //('Navigating to :', window.location.pathname);
     const path = window.location.pathname;
     if (path === '/login') {
         renderLoginPage();
@@ -275,7 +275,7 @@ function handleLogin(event) {
         username: username,
         password: password
     };
-    console.log("Login attempt:", loginData);
+    //("Login attempt:", loginData);
     // Send POST request to the server's login endpoint
     fetch(window.self.origin +'/backend' + 'login/', {  // Replace with your API endpoint
         method: "POST",
@@ -288,21 +288,21 @@ function handleLogin(event) {
     })
     .then(response => response.json())
     .then(data => {
-        console.log("Server response - data ", data);
-        console.log("cookies", data.cookie);
+        //("Server response - data ", data);
+        //("cookies", data.cookie);
         if (data.success) {
             // If login is successful
             alert("Login successful! laaaa walooo ");
 
             // Example usage after logging in
             const jwtToken = getCookie('JWT_token');
-            console.log("JWT Token from cookies:", jwtToken);
+            //("JWT Token from cookies:", jwtToken);
 
             // localStorage.setItem("token", data.token); // Store token (if using JWT)
             navigateTo('/home'); // Redirect to dashboard or another protected page
         } else {
             // If login fails, display error message
-            console.log("Login failed:", response);
+            //("Login failed:", response);
             alert("Login failed: " + data.message);
         }
     })
@@ -350,7 +350,7 @@ function handleSignup(event) {
         return response.json();
     })
     .then(data => {
-        console.log('Signup successful:', data);
+        //('Signup successful:', data);
         alert('Signup successful! Please login to continue.');
         navigateTo('/login');
         // Optionally redirect or display a success message
@@ -399,7 +399,7 @@ function hanleLogoutBtn(event){
             return response.json();
         })
         .then(response => {
-            console.log('Loggged out Successfully !!!');
+            //('Loggged out Successfully !!!');
             navigateTo('/login');   // Redirect to login page
         })
         .catch(error => {

@@ -58,7 +58,7 @@ async function handleLogin(event,appContainer) {
         username: username,
         password: password
     };
-    console.log("Login attempt:", loginData);
+    //("Login attempt:", loginData);
     // Send POST request to the server's login endpoint
     fetch(window.self.origin + "/backend/login/", {  // Replace with your API endpoint
         method: "POST",
@@ -72,16 +72,16 @@ async function handleLogin(event,appContainer) {
     .then(response => response.json())
     .then(data => {
         if (data.success) {
-            console.log("Server response - data ", data);
-            console.log("data.redirect ", data.redirect);
+            //("Server response - data ", data);
+            //("data.redirect ", data.redirect);
             if (data.redirect)  {
                 alert("You are redircted to 2fa authentications  !");
                 navigateTo(data.redirect, appContainer);
             }
             else{
                 alert("You are Logged In  !");
-                console.log("logggged in ");
-                console.log("data.user",data.user);
+                //("logggged in ");
+                //("data.user",data.user);
                 localStorage.setItem('me', JSON.stringify(data.user));
 
                 navigateTo('/home',appContainer); // Redirect to dashboard or another protected page

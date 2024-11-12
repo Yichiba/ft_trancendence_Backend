@@ -1,6 +1,6 @@
-console.log("from generateProfileHeader");
+//("from generateProfileHeader");
 const user = JSON.parse(localStorage.getItem('me'));
-console.log("user",friend);
+//("user",friend);
 const profileHeaderHTML = `
     <div class="profile-header">
         <img class="profile-avatar" src="${friend.profile_picture || 'default_avatar_url'}" alt="${friend.username}'s avatar" width="150" height="150">

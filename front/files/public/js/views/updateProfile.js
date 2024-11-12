@@ -5,7 +5,7 @@ import { loadProfilePage } from './profile.js';
 
 // Render the avatar section with upload button
 function renderAvatarSection(user) {
-  // console.log('from renderAvatarSection',user);
+  // //('from renderAvatarSection',user);
   return `
   <div class="avatar-edit-container">
   <img class="profile-avatar" id="profile-avatar" src="${user.profile_picture}" alt="${user.username}'s avatar" width="150" height="150">
@@ -43,7 +43,7 @@ function renderFormInput(id, label, type, value) {
   return `
   <div class="form-group">
   <label for="${id}">${label}</label>
-  <input type="${type}" id="${id}" name="${id}" value="${value}" class="form-input">
+  <input type="${type}" id="${id}" required autocomplete="${label}" name="${id}" value="${value}" class="form-input">
   </div>
   `;
 }
@@ -53,7 +53,7 @@ function renderPasswordInput() {
   return `
   <div class="form-group">
   <label for="password">New Password</label>
-  <input type="password" id="password" name="password" class="form-input" placeholder="Enter new password">
+  <input type="password" id="password" required autocomplete="new-password"name="password" class="form-input" placeholder="Enter new password">
   </div>
   `;
 }
@@ -61,7 +61,7 @@ function renderPasswordInput() {
 
 // Render the two-factor authentication switch
 function renderTwoFactorSwitch(user) {
-  console.log('from renderTwoFactorSwitch',user.is2FAEnabled);
+  //('from renderTwoFactorSwitch',user.is2FAEnabled);
   return `
     <div class="form-group">
       <label class="switch-label">
@@ -98,10 +98,10 @@ function initializeEditProfileEvents(user, appContainer) {
 function handleTwoFactorToggle(event,appContainer) {
   const isEnabled = event.target.checked;
   if (isEnabled) {
-    console.log("Two-Factor Authentication enabled.");
+    //("Two-Factor Authentication enabled.");
     // Add logic here to enable 2FA (e.g., send a request to the server)
   } else {
-    console.log("Two-Factor Authentication disabled.");
+    //("Two-Factor Authentication disabled.");
     // Add logic here to disable 2FA
   }
   navigateTo('/2fa/', appContainer);
@@ -111,38 +111,38 @@ function handleTwoFactorToggle(event,appContainer) {
 
 async function handleEditProfileForm(event) {
   event.preventDefault();
-  console.log("Form submitted");
+  //("Form submitted");
 
   const user = JSON.parse(localStorage.getItem('me'));
-  console.log("user",user);
+  //("user",user);
   const form = event.target;
   const inputs = form.querySelectorAll('input');
 
   // Initialize FormData for submission
   const formData = new FormData();
-  console.log("inputs",inputs);
+  //("inputs",inputs);
   inputs.forEach(input => {
     if (input.name && input.value) {
-      console.log(`{input.name} == ${input.value}`);
+      //(`{input.name} == ${input.value}`);
       if ((input.value != user[input.name]) ||input.type === 'password'){
-        console.log("user[input.name]",user[input.name]);
+        //("user[input.name]",user[input.name]);
         formData.append(input.name, input.type === 'checkbox' ? input.checked : input.value);
       }
 
     }
   });
-  // console.log("Collected Form Data:", Object.fromEntries(formData));
+  // //("Collected Form Data:", Object.fromEntries(formData));
 
   try {
     // Send form data to the server
-    const response = await fetch(`${window.location.origin}/users/me`, {
+    const response = await fetch(`${window.location.origin}/backend/users/me`, {
       method: 'POST',
       credentials: 'include', // Includes cookies for session management
       body: formData,
     });
 
     const data = await response.json();
-    console.log("Server response data:", data);
+    //("Server response data:", data);
 
     // Check for each field and display success/error messages
     for (const [field, result] of Object.entries(data)) {
@@ -167,7 +167,7 @@ async function handleEditProfileForm(event) {
 
 
 async function handleAvatarUpload(event, appContainer) {
-  console.log("from Avatar upload");
+  //("from Avatar upload");
 
   const fileInput = event.target;
   const file = fileInput.files[0];

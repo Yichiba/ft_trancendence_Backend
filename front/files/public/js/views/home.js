@@ -34,7 +34,7 @@ async function fetch_friendRequest() {
 
   // Update the notification container
   notificationContainer.innerHTML = notificationItems;
-  console.log("Updated notifications:", notificationContainer.innerHTML);
+  //("Updated notifications:", notificationContainer.innerHTML);
 
   // Add event listeners to the accept and decline buttons
   document.querySelectorAll('.acceptt-btn').forEach(button => {
@@ -47,20 +47,20 @@ async function fetch_friendRequest() {
 
 function handleFriendRequest(username, isAccepted) {
   if (isAccepted) {
-    console.log(`Accepted friend request from ${username}`);
+    //(`Accepted friend request from ${username}`);
     // Add code here to handle accepting the friend request
   } else {
-    console.log(`Declined friend request from ${username}`);
+    //(`Declined friend request from ${username}`);
     // Add code here to handle declining the friend request
   }
 }
 
 export async function renderTopBar(appContainer) {
-  console.log("from topbar");
+  //("from topbar");
 
   const data = await fetch_users('me');
   const user = data.user;
-  console.log("user", user);
+  //("user", user);
 
   const topBarHTML = `
     <div class="top-bar">
@@ -98,7 +98,7 @@ export async function renderTopBar(appContainer) {
   const profilePicContainer = document.getElementById('profile-picture');
   if (profilePicContainer) {
     profilePicContainer.addEventListener('click', () => {
-      console.log('Profile picture clicked, redirecting to profile page');
+      //('Profile picture clicked, redirecting to profile page');
       navigateTo('/profile', appContainer);
     });
   }
@@ -106,7 +106,7 @@ export async function renderTopBar(appContainer) {
   const searchBar = document.querySelector('.search-bar');
   searchBar.addEventListener('keypress', (e) => {
     if (e.key === 'Enter') {
-      console.log('Search query:', e.target.value);
+      //('Search query:', e.target.value);
       const username = e.target.value.toLowerCase();
       loadProfilePage(appContainer, username); // Load profile for specified user
     }
@@ -128,7 +128,7 @@ export async function renderTopBar(appContainer) {
 
 
   function handleNotification(event,appContainer) {
-    console.log('Notification icon clicked');
+    //('Notification icon clicked');
     const notificationDropdown = document.querySelector('.notification-dropdown');
     notificationDropdown.classList.toggle('show');
   }
@@ -192,7 +192,7 @@ export async function renderTopBar(appContainer) {
           return response.json();
       })
       .then(response => {
-          console.log('Loggged out Successfully !!!');
+          //('Loggged out Successfully !!!');
           navigateTo('/login',appContainer );   // Redirect to login page
       })
       .catch(error => {
@@ -203,10 +203,10 @@ export async function renderTopBar(appContainer) {
 
 
 //   export async  function renderUserProfile(apppContainer) {
-//     console.log('from renderUserProfile');
+//     //('from renderUserProfile');
 //     const response = await fetch_users('me');
 //     const userData = response.user;
-//     console.log('User data:', userData);
+//     //('User data:', userData);
 //         document.querySelector('.username').textContent = userData.username;
 //         document.querySelector('.user-avatar img').src = userData.profile_picture;
   
@@ -222,7 +222,7 @@ export async function renderHomePage(appContainer) {
         <div id="mainContent" class="bodyElement"></div>
         <div id="leftSidebar" class="bodyElement"></div>
     `;
-    console.log('Navigating to home page    howaa');
+    //('Navigating to home page    howaa');
     // Render top bar, main content, and user profile into placeholders
     renderTopBar(appContainer);
     renderLeftSidebar(appContainer);

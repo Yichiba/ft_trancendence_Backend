@@ -77,7 +77,7 @@ export function renderChatContent(appContainer) {
         <div id="mainContent" class="bodyElement"></div>
         <div id="leftSidebar" class="bodyElement"></div>
     `;
-    console.log('Navigating to home page    howaa');
+    //('Navigating to home page    howaa');
     // Render top bar, main content, and user profile into placeholders
     renderTopBar(appContainer);
     renderLeftSidebar(appContainer);

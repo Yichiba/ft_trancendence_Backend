@@ -2,7 +2,7 @@ import { navigateTo } from '../router.js';
 
 // return Response({ 'success' : True,'data' : { 'success' : True, 'friends' : active_friends, 'requests':friend_requests}} ,status=200)
 
-console.log('from renderLeftSidebar');
+//('from renderLeftSidebar');
 export async function fetchFriends() {
     const response = await fetch(window.self.origin +'/backend' + '/friends/', {
         method: 'GET',
@@ -20,11 +20,11 @@ export function renderLeftSidebar(appContainer) {
   
   // Render sidebar with fetched friends data
     async function renderSidebar(appContainer) {
-        console.log("from from render side bar")
+        //("from from render side bar")
 
         const response = await fetchFriends();
         const friendsData = response.data.friends;
-        console.log("friendsData from leeeeeeft side ",friendsData);
+        //("friendsData from leeeeeeft side ",friendsData);
 
         const friendsHTML = friendsData.map(friend => `
             <div class="friend-item">
@@ -51,7 +51,7 @@ export function renderLeftSidebar(appContainer) {
         document.querySelectorAll('.friend-avatar').forEach(img => {
             img.addEventListener('click', function(event) {
                 const username = event.target.getAttribute('alt').split("'s")[0];
-                console.log("username",username)
+                //("username",username)
                 navigateTo(`/profile/${username}`, appContainer);
             }); 
         });
@@ -75,7 +75,7 @@ export function handleLogoutBtn(event, appContainer) {
         return response.json();
     })
     .then(() => {
-        console.log('Logged out successfully');
+        //('Logged out successfully');
         navigateTo('/login', appContainer);  // Redirect to login page
     })
     .catch(error => {
@@ -88,13 +88,13 @@ export function handleLogoutBtn(event, appContainer) {
 export async function fetch_users(username) {
     let data 
     
-    console.log(`from fetch_usersee . getting ${username}'s data`)
+    //(`from fetch_usersee . getting ${username}'s data`)
     try {
         const response = await fetch(`${window.self.origin}/backend/users/${username}`, {
             method: 'GET',
             credentials: 'include'
         });
-        console.log("this si", `${window.self.origin}/users/${username}`);
+        //("this si", `${window.self.origin}/users/${username}`);
         data = await response.json();
         if (!response.ok) {
             return (data);

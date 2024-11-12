@@ -616,12 +616,12 @@
 
     function handleSearch(e) {
       const searchTerm = e.target.value.toLowerCase();
-      console.log('Searching for:', searchTerm);
+
     }
 
     function handleFriendClick(item) {
       const friendName = item.querySelector('.friend-name').textContent;
-      console.log(`Opening chat with: ${friendName}`);
+      
     }
 
     function validateOTP() {
@@ -672,7 +672,6 @@
 
     function resendCode(event) {
       event.preventDefault();
-      console.log('Resending verification code...');
       
       const link = event.target;
       link.textContent = 'Code sent! Try again in 60s';
@@ -708,7 +707,7 @@
     }
 
     function handleLogout() {
-      console.log('Logging out...');
+      
       window.location.href = 'https://example.com/login';
     }
 
@@ -737,14 +736,14 @@
     const searchBar = document.querySelector('.search-bar');
     searchBar.addEventListener('input', (e) => {
       const searchTerm = e.target.value.toLowerCase();
-      console.log('Searching for:', searchTerm);
+      
     });
 
     document.addEventListener('DOMContentLoaded', () => {
       document.querySelectorAll('.friend-item').forEach(item => {
         item.addEventListener('click', () => {
           const friendName = item.querySelector('.friend-name').textContent;
-          console.log(`Opening chat with: ${friendName}`);
+          
           renderChatView();
         });
       });

@@ -17,5 +17,5 @@ const appContainer = document.getElementById('app'); // Use the correct ID or se
 // Handle back/forward navigation
 window.addEventListener('popstate', () => router(appContainer));
 // Initial render based on the URL
-console.log('Navigating to:', window.location.pathname);
+//('Navigating to:', window.location.pathname);
 router(appContainer);

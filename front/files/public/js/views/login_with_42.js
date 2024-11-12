@@ -2,10 +2,10 @@ import { navigateTo } from '../router.js';
 
 
 export function sendCodeOauth(appContainer) {
-    console.log('from sendCodeOauth');
+    //('from sendCodeOauth');
     const urlParams = new URLSearchParams(window.location.search);
     const code = urlParams.get('code');
-    console.log('Code:', code);
+    //('Code:', code);
     
     fetch(`${window.self.origin}/backend/login/42/callback/?code=${code}`, {
         method: 'GET',
@@ -15,7 +15,7 @@ export function sendCodeOauth(appContainer) {
         },
     })
     .then(response => {
-        console.log('Response:', response);
+        //('Response:', response);
         if (!response.ok) {
             throw new Error('Network response was not ok');
         }

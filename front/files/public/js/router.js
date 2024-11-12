@@ -11,12 +11,12 @@ import { renderChatView } from './views/chat.js';
 
 // Router function to render the correct view based on URL path
 export function router(appContainer) {
-    console.log('from router');
+    //('from router');
 
 
 
     
-    console.log('Navigating to aaa :', window.location.pathname);
+    //('Navigating to aaa :', window.location.pathname);
     const path = window.location.pathname;
 
 
@@ -47,12 +47,12 @@ export function router(appContainer) {
         renderEditProfile(appContainer);
     }else if (path.startsWith('/profile')) {
         const profileMatch = path.match(/^\/profile\/([^/]+)$/);
-        console.log('profileMatch',profileMatch);
+        //('profileMatch',profileMatch);
         if (profileMatch) {
 
             loadProfilePage(appContainer, profileMatch[1]);  // Load profile for specified user
         } else {
-            console.log('fromrouteeeeeeeeeeeeeeerererererrererrerrererrerererrerere!!!!!!!!!!!!!!!!!! profile');
+            //('fromrouteeeeeeeeeeeeeeerererererrererrerrererrerererrerere!!!!!!!!!!!!!!!!!! profile');
             loadProfilePage(appContainer,'me');  // Default profile page for current user
         }
     }else if (path.startsWith('/chat')) {
@@ -65,10 +65,10 @@ export function router(appContainer) {
             renderChatView(appContainer,'me');  // Default profile page for current user
         }
     }else if (path === '/2fa/') {
-        console.log('in my way to  2fa');
+        //('in my way to  2fa');
         renderOtpInput(appContainer);
     }else if (path === '/remotelogin') {
-        console.log()
+        //()
         window.location.href = window.self.origin + '/backend' + '/login/42/';
     } else if (path === '/signup') {
         renderSignUpPage(appContainer);

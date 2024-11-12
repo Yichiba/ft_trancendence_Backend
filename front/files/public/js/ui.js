@@ -29,7 +29,7 @@ export function initializeUI() {
     if (searchBar) {
         searchBar.addEventListener('input', (e) => {
             const searchTerm = e.target.value.toLowerCase();
-            console.log('Searching for:', searchTerm);
+            //('Searching for:', searchTerm);
         });
     }
 }

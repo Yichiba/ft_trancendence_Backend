@@ -32,7 +32,7 @@ function handlePasswordReset(event,appContainer,token) {
     return;
   }
   
-  console.log('Resetting password...');
+  //('Resetting password...');
   
   const container = document.querySelector('.new-password-container');
   container.innerHTML = `
@@ -107,7 +107,7 @@ export function renderForgotPassword(appContainer) {
   `;
   
   appContainer.classList.remove('background-container');
-  console.log('Forgot password page rendered');
+  //('Forgot password page rendered');
 
   // Attach the event listener to the form
   document.getElementById('forgot-form').addEventListener('submit', (event) => handleForgotPassword(event, appContainer));
@@ -123,7 +123,7 @@ async function handleForgotPassword(event, appContainer) {
 
   //check if the identifier is a username or email address
  
-    console.log('Password reset requested for email:', email);
+    //('Password reset requested for email:', email);
     
     
     const response = await fetch(window.self.origin +'/backend' + 'forgot/', {

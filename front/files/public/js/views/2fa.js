@@ -2,12 +2,12 @@ import { navigateTo } from '../router.js';
 import { fetch_users } from './leftside.js';
 
 export function renderOtpInput(appContainer) {
-    console.log('from renderOtpInput');
-    console.log(appContainer instanceof HTMLElement ,appContainer);
+    //('from renderOtpInput');
+    //(appContainer instanceof HTMLElement ,appContainer);
 
 
     const token = getTokenFromUrl();
-    console.log('Token:', token);
+    //('Token:', token);
     fetchTwoFAData(token, appContainer);
 }
 
@@ -17,8 +17,8 @@ function getTokenFromUrl() {
 }
 
 function fetchTwoFAData(token, appContainer) {
-    console.log('from fetchTwoFAData');
-    console.log(appContainer instanceof HTMLElement ,appContainer);
+    //('from fetchTwoFAData');
+    //(appContainer instanceof HTMLElement ,appContainer);
 
 
     fetch(`${window.self.origin}/backend/2fa/?token=${token}`, {
@@ -35,7 +35,7 @@ function fetchTwoFAData(token, appContainer) {
         return response.json();
     })
     .then(data => {
-        console.log('Response Data:', data);
+        //('Response Data:', data);
         renderOtpInterface(data, appContainer, token);
     })
     .catch(error => {
@@ -48,8 +48,8 @@ function fetchTwoFAData(token, appContainer) {
 
 
 function renderOtpInterface(data, appContainer, token) {
-    console.log('from renderOtpInterface');
-    console.log(appContainer instanceof HTMLElement ,appContainer);
+    //('from renderOtpInterface');
+    //(appContainer instanceof HTMLElement ,appContainer);
 
     
     const is2FAEnabled = data.is2FAEnabled;
@@ -93,7 +93,7 @@ function renderOtpInterface(data, appContainer, token) {
     document.getElementById('app').innerHTML = appHTML;
 
 
-    console.log("appContainer  1 ", appContainer instanceof HTMLElement);
+    //("appContainer  1 ", appContainer instanceof HTMLElement);
 
     // document.getElementById('otp-submit-button').innerHTML = appContainer.innerHTML;
 
@@ -101,9 +101,9 @@ function renderOtpInterface(data, appContainer, token) {
 }
 
 function setupOtpSubmission(token, appContainer) {
-    console.log('from setupOtpSubmission');
+    //('from setupOtpSubmission');
 
-    // console.log('Token:',appContainer.innerHTML);
+    // //('Token:',appContainer.innerHTML);
     const otpSubmitButton = document.getElementById('otp-submit-button');
     const CancelButton = document.getElementById('cancel-otp-btn');
     const otpInput = document.getElementById('otp-input');
@@ -139,8 +139,8 @@ function setupOtpSubmission(token, appContainer) {
     });
 }
 function verifyOtp(token, otp, appContainer) {
-    console.log('from verifyOtp');
-    console.log('Token:', token);
+    //('from verifyOtp');
+    //('Token:', token);
     fetch(`${window.self.origin}/backend/2fa/?token=${token}`, {
         method: 'POST',
         headers: {
@@ -150,17 +150,17 @@ function verifyOtp(token, otp, appContainer) {
         credentials: 'include'
     })
     .then(response => {
-        console.log('Response:', response);
+        //('Response:', response);
         return response.json().then(result => ({ status: response.status, ...result }));
     })
     .then(({ status, message ,user}) => {
-        console.log('Status:', status);
-        console.log('message:', message);
-        console.log('user:', user);
+        //('Status:', status);
+        //('message:', message);
+        //('user:', user);
         if (status === 200) {
             alert(message);
             if (message === "Logged in succesfully") {
-                console.log("before navigateTo");
+                //("before navigateTo");
                 localStorage.setItem('me', JSON.stringify(user));
                 navigateTo('/home', appContainer);
             }
