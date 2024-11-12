@@ -28,7 +28,7 @@ export function renderLeftSidebar(appContainer) {
 
         const friendsHTML = friendsData.map(friend => `
             <div class="friend-item">
-                <img class="friend-avatar" src="${window.self.origin}/backend/${friend.profile_picture}" alt="${friend.username}'s avatar"   width="40" height="40">
+                <img class="friend-avatar" src="${window.self.origin}/backend${friend.profile_picture}" alt="${friend.username}'s avatar"   width="40" height="40">
                 <div class="online-indicator ${friend.status ? 'online' : 'offline'}"></div>
                 <div class="friend-info">
                     <div class="friend-name">${friend.username}</div>

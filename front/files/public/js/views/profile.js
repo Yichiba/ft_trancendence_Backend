@@ -87,7 +87,7 @@ export async function acceptFriend(friend,appContainer) {
  export async function addFriend(friend,appContainer) {
     console.log("from addFriend");
     console.log('Adding friend:', friend);
-    const response = await fetch(`http://127.0.0.1:8000/send/${friend.username}`, {
+    const response = await fetch(`${window.self.origin}/backend/send/${friend.username}`, {
         method: 'POST',
         credentials: 'include',
     });
@@ -102,7 +102,7 @@ export async function acceptFriend(friend,appContainer) {
 export async function cancelFriend(friend,appContainer) {
     console.log("from cancelFriend");
     console.log('canceling friend:', friend);
-    const response = await fetch(`http://127.0.0.1:8000/reject/${friend.username}`, {
+    const response = await fetch(`${window.self.origin}/backend/reject/${friend.username}`, {
         method: 'POST',
         credentials: 'include',
     });

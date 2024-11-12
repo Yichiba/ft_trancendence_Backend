@@ -284,6 +284,9 @@ class users(APIView):
             data  = is_friend(request, username)
             img_url = user.profile_picture.url
             print("image url = ",img_url)
+            profile_picture_url =  request.build_absolute_uri( "/backend"+ img_url) 
+            profile_picture_url = profile_picture_url.replace("http://", "https://")
+            print ("hada howa l url =?>>>>" + profile_picture_url)
             response = Response({'success':True ,'user': {
                 "first_name": user.first_name,
                 "last_name": user.last_name,
@@ -292,7 +295,7 @@ class users(APIView):
                 "email": user.email,
                 "lastname": user.last_name,
                 "status" : user.online,
-                "profile_picture": request.build_absolute_uri(img_url),
+                "profile_picture":profile_picture_url,
                 "is2FAEnabled": user.auth_2fa,
                 "friend":  data["friend"],
                 "recived" : data["recived"],

@@ -179,9 +179,6 @@ def callback_with_42(request):
         }
 
         response = requests.post(token_url, json=payload)
-        print("response",response)
-        print("response.json",response.json())
-        print("response.status_code",response.status_code)
         if response.status_code == 200:
             access_token = response.json().get('access_token')
             user_data = fetch_user_data(access_token)
