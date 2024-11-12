@@ -27,9 +27,9 @@ EMAIL_HOST_PASSWORD = 'aehm cobk lhfd fevc'
 
 
 
-UID = 'u-s4t2ud-833c86bd1d600ea4dc51f3e3714e08e9cebd69973644d5100833beb672fb663a'
-SECRET = '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'
-REDIRECT_URI = 'https://10.11.4.9/callback'
+UID = 'u-s4t2ud-651edccdceb332fb69bf9fa11232edd9a6d49ddac9c1ed402ddc9d46f94d2d70'
+SECRET = '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'
+REDIRECT_URI = 'https://10.11.4.7/callback'
 
 JWT_SECRET_KEY="yichiba94@"
 
@@ -180,8 +180,8 @@ AUTH_PASSWORD_VALIDATORS = [
 # MEDIA_ROOT = '/Users/yichiba/Desktop/authentication/authentication/accounts/'
 # MEDIA_URL = '/media/'
 
-MEDIA_URL = 'accounts/media/'
-MEDIA_ROOT = os.path.join(BASE_DIR, 'accounts/media')
+MEDIA_URL = '/media/'
+MEDIA_ROOT = os.path.join(BASE_DIR, '/media')
 
 
 # Internationalization

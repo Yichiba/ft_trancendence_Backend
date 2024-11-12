@@ -66,9 +66,8 @@ def get_friends(request):
     print("from get_friends")
     active_friends = []
     friend_requests = []
-    # active_friends = models.FriendShip.get_friends(request.user)
-    # friend_requests = models.FriendShip.get_friend_requests(request.user)
-    # return Response(f"friends:{active_friends} ..."f"     friends_request:{friend_requests}",status=200)
+
+    
     user = request.user
     try:
         print("from frie friendd dosnot exist ")
@@ -414,10 +413,15 @@ class generate_OTP(APIView):
         print("from generate_otp")
         user = self.get_user_from_request(request)
         print("user = ",user)
+        print("sssss = ",str)
         if user.auth_2fa:
             print("user.auth_2fa = ",user.auth_2fa)
             return Response({'success': True, "is2FAEnabled": user.auth_2fa}, status=200)
-        user.mfa_secret = pyotp.random_base32()
+        print("sssss = ",str)
+        # str = pyotp.random_base32()
+        print("strssssss = ",str)
+        # if str.length < 20:
+        user.mfa_secret = "XB3V9D5A4J6YQ=="
         user.save()
         totp = pyotp.TOTP(user.mfa_secret)
         qr_code_uri = totp.provisioning_uri(name=user.username, issuer_name="tryy")

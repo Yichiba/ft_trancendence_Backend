@@ -18,7 +18,6 @@ function getTokenFromUrl() {
 
 function fetchTwoFAData(token, appContainer) {
     console.log('from fetchTwoFAData');
-    console.log('from fetchTwoFAData');
     console.log(appContainer instanceof HTMLElement ,appContainer);
 
 

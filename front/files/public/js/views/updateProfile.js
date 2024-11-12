@@ -135,7 +135,7 @@ async function handleEditProfileForm(event) {
 
   try {
     // Send form data to the server
-    const response = await fetch(`http://127.0.0.1:8000/users/me`, {
+    const response = await fetch(`${window.location.origin}/users/me`, {
       method: 'POST',
       credentials: 'include', // Includes cookies for session management
       body: formData,
@@ -178,7 +178,7 @@ async function handleAvatarUpload(event, appContainer) {
   const formData = new FormData();
   formData.append('profile_picture', file);
 
-    const response = await fetch(`http://127.0.0.1:8000/users/me`, {
+    const response = await fetch(`${window.location.origin}/backend/users/me`, {
       method: 'POST',
       credentials: 'include', // Includes cookies for session management
       body: formData,

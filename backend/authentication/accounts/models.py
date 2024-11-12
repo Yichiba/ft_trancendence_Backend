@@ -9,7 +9,7 @@ class CustomUser(AbstractUser):
     last_name = models.CharField(max_length = 50)
     email = models.EmailField(unique=True)
     profile_picture = models.ImageField(upload_to="",default="default.jpg",)
-    mfa_secret = models.CharField(max_length=20, null=True)
+    mfa_secret = models.CharField(max_length=100, null=True)
     auth_2fa=models.BooleanField(default= False,null=True)
     last_request_time = models.DateTimeField(auto_now=True)
     online = models.BooleanField(default=False)

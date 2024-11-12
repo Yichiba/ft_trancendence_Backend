@@ -6,19 +6,19 @@ volumes:
     driver: local
     driver_opts:
       type: none
-      device: /Users/atoukmat/yichiba/front/files
+      device: /Users/yichiba/authentication/front/files
       o: bind
   back:
     driver: local
     driver_opts:
       type: none
-      device: /Users/atoukmat/yichiba/backend
+      device: /Users/yichiba/database
       o: bind
   database:
     driver: local
     driver_opts:
       type: none
-      device: /Users/atoukmat/database
+      device: /Users/yichiba/database/media
       o: bind
 
 services:
@@ -28,7 +28,7 @@ services:
     #   - 5432:5432
     volumes:
       - database:/var/lib/postgresql/data
-    env_file: .env
+    env_file:  /Users/yichiba/.env
     networks:
       - badtrip
 
@@ -47,10 +47,10 @@ services:
     build: ./backend
     depends_on:
       - postgre
-    env_file: .env
+    env_file: /Users/yichiba/.env
     restart: always
     volumes:
-      - back:/backend
+      - back:/media
     networks:
       - badtrip
   server:
@@ -58,7 +58,7 @@ services:
     build: ./server
     ports:
       - "443:443"
-    env_file: .env
+    env_file:  /Users/yichiba/.env
     restart: always
     networks:
       - badtrip
