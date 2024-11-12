@@ -14,7 +14,24 @@ volumes:
       type: none
       device: /Users/atoukmat/yichiba/backend
       o: bind
+  database:
+    driver: local
+    driver_opts:
+      type: none
+      device: /Users/atoukmat/database
+      o: bind
+
 services:
+  postgres:
+    image: postgres:14-alpine
+    # ports:
+    #   - 5432:5432
+    volumes:
+      - database:/var/lib/postgresql/data
+    env_file: .env
+    networks:
+      - badtrip
+
   front:
     container_name: front
     build: ./front
@@ -28,6 +45,8 @@ services:
   backend:
     container_name: backend
     build: ./backend
+    depends_on:
+      - postgre
     env_file: .env
     restart: always
     volumes:
