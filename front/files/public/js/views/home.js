@@ -202,14 +202,15 @@ export async function renderTopBar(appContainer) {
 
 
 
-  export async  function renderUserProfile(apppContainer) {
-    console.log('from renderUserProfile');
-    const response = await fetch_users('me');
-    const userData = response.user;
-        document.querySelector('.username').textContent = userData.username;
-        document.querySelector('.user-avatar img').src = userData.profile_picture;
+//   export async  function renderUserProfile(apppContainer) {
+//     console.log('from renderUserProfile');
+//     const response = await fetch_users('me');
+//     const userData = response.user;
+//     console.log('User data:', userData);
+//         document.querySelector('.username').textContent = userData.username;
+//         document.querySelector('.user-avatar img').src = userData.profile_picture;
   
-}
+// }
 
 
 export async function renderHomePage(appContainer) {
@@ -226,5 +227,5 @@ export async function renderHomePage(appContainer) {
     renderTopBar(appContainer);
     renderLeftSidebar(appContainer);
     renderMainContent(appContainer);
-    renderUserProfile(appContainer);
+    // renderUserProfile(appContainer);
 }

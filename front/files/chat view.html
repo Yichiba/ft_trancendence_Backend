@@ -758,7 +758,6 @@
     }
 
     function handleLogout() {
-      console.log('Logging out...');
       window.location.href = 'https://example.com/login';
     }
     
@@ -787,14 +786,12 @@
     const searchBar = document.querySelector('.search-bar');
     searchBar.addEventListener('input', (e) => {
       const searchTerm = e.target.value.toLowerCase();
-      console.log('Searching for:', searchTerm);
     });
 
     document.addEventListener('DOMContentLoaded', () => {
       document.querySelectorAll('.friend-item').forEach(item => {
         item.addEventListener('click', () => {
           const friendName = item.querySelector('.friend-name').textContent;
-          console.log(`Opening chat with: ${friendName}`);
           renderChatView();
         });
       });

@@ -1,7 +1,6 @@
 import { fetch_users } from './leftside.js';
 import { renderHomePage, renderTopBar} from './home.js';
 import { renderLeftSidebar } from './leftside.js';
-import { renderUserProfile } from './home.js';
 import { renderEditProfile } from './updateProfile.js';
 import { renderChatView } from './chat.js';
 import { navigateTo } from '../router.js';
@@ -216,7 +215,7 @@ export async function loadProfilePage(appContainer,username) {
         // Render top bar, sidebar, and profile into placeholders
         renderTopBar(appContainer);
         renderLeftSidebar(appContainer);
-        renderUserProfile(appContainer);
+        // renderUserProfile(appContainer);
 
         // Assemble profile page HTML
         const profilePageHTML = `

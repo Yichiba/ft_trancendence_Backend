@@ -80,7 +80,6 @@
   function handleForgotPassword(event) {
     event.preventDefault();
     const identifier = event.target.querySelector('input[type="text"]').value;
-    console.log('Password reset requested for:', identifier);
     
     // Show success message
     const container = document.querySelector('.forgot-password-container');

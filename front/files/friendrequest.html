@@ -622,7 +622,6 @@
 
     // Handler for the edit profile button
     document.querySelector('.edit-profile-btn').addEventListener('click', () => {
-      console.log('Edit profile clicked');
       // Handle edit profile action
     });
 
@@ -656,7 +655,6 @@
 
     document.querySelectorAll('.settings-item').forEach(item => {
       item.addEventListener('click', () => {
-        console.log('Clicked:', item.textContent.trim());
         // Handle settings item click
       });
     });
@@ -664,7 +662,6 @@
     const searchBar = document.querySelector('.search-bar');
     searchBar.addEventListener('input', (e) => {
       const searchTerm = e.target.value.toLowerCase();
-      console.log('Searching for:', searchTerm);
     });
 
     document.querySelectorAll('.friend-request-btn').forEach(button => {
@@ -687,7 +684,6 @@
           }
         }, 300);
         
-        console.log(`Friend request ${action}`);
       });
     });
   </script>
