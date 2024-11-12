@@ -25,20 +25,21 @@ export function renderGame(appContainer){
 }
 
 
-async function fetch_users(username) {
+export async function fetch_users(username) {
 
-
-        const response = await fetch(`https://127.0.0.1:8000/users/${username}`, {
-            method: 'GET',
-            credentials: 'include'
-        });
-
-        const data = await response.json();
-        return data;
-        // Check response status
-        
-   
-}
+    const response = await fetch(`/backend/users/${username}`,
+      {   
+        method: 'GET',
+        credentials: 'include'
+    });
+    
+    const data = await response.json();
+    if (!response.ok) {
+      return (data);
+    }
+    return data;
+  }
+  
 
 async function checkUsername() {
     const usernameInput = document.getElementById("username").value.trim();
