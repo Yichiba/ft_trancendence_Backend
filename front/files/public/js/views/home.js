@@ -1,6 +1,9 @@
 import { navigateTo } from '../router.js';
 import { fetch_users, fetchFriends, renderLeftSidebar } from './leftside.js';
 import { loadProfilePage, cancelFriend, acceptFriend } from './profile.js';
+import { rendertournois } from './first_page.js';
+import { renderGame } from './game.js';
+import { renderGameAI } from './gameAI.js';
 
 async function fetch_friendRequest() {
   const response = await fetchFriends();
@@ -146,25 +149,25 @@ export async function renderTopBar(appContainer) {
         </header>
         
         <div class="cta-buttons">
-          <a href="https://example.com/play" class="btn btn-play">Play Now</a>
+          <a class="btn btn-play">Play Now</a>
           <a href="https://example.com/tutorial" class="btn btn-learn">How to Play</a>
         </div>
         
         <div class="features">
-          <div class="feature-card">
+          <div id='tournoiss' class="feature-card">
             <div class="feature-icon">🎮</div>
             <h3>Tournament</h3>
             <p>Join exciting tournaments and compete for glory</p>
           </div>
           
           <div class="feature-card">
-            <div class="feature-icon">🎯</div>
+            <div id ='GameAi' class="feature-icon">🎯</div>
             <h3>Practice Mode</h3>
             <p>Perfect your skills with AI opponents of varying difficulty</p>
           </div>
           
-          <div class="feature-card">
-            <div class="feature-icon">🤝</div>
+          <div class="feature-card feature-card-2">
+            <div id="multiplayer" class="feature-icon">🤝</div>
             <h3>Multiplayer</h3>
             <p>Challenge friends or random opponents in real-time matches</p>
           </div>
@@ -173,6 +176,10 @@ export async function renderTopBar(appContainer) {
     `;
     
     document.getElementById('mainContent').innerHTML = mainContentHTML;
+    document.getElementById('tournoiss').addEventListener('click', (e) => rendertournois(appContainer));
+    document.querySelector('.feature-card-2').addEventListener('click', (e) => renderGame(appContainer));
+    document.querySelector('.btn-play').addEventListener('click', (e) => renderGame(appContainer));
+    document.getElementById('GameAi').addEventListener('click', (e) => renderGameAI(appContainer));
     
   }
   
