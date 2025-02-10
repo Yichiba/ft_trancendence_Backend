@@ -11,27 +11,26 @@ https://docs.djangoproject.com/en/4.2/ref/settings/
 """
 
 from pathlib import Path
-from accounts import middleware
 import os
+from dotenv import load_dotenv
 
+
+
+load_dotenv()
 
 
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
-EMAIL_HOST = 'smtp.gmail.com' 
-EMAIL_PORT = 587
-EMAIL_USE_TLS = True  
-EMAIL_HOST_USER = 'youssefichiba@gmail.com'
-EMAIL_HOST_PASSWORD = 'aehm cobk lhfd fevc'
+EMAIL_HOST = os.getenv('EMAIL_HOST', 'smtp.gmail.com')
+EMAIL_PORT = int(os.getenv('EMAIL_PORT', 587))
+EMAIL_USE_TLS = os.getenv('EMAIL_USE_TLS', 'True') == 'True'
+EMAIL_HOST_USER = os.getenv('EMAIL_HOST_USER')
+EMAIL_HOST_PASSWORD = os.getenv('EMAIL_HOST_PASSWORD')
 
+UID = os.getenv('UID')
+SECRET = os.getenv('SECRET')
+REDIRECT_URI = os.getenv('REDIRECT_URI', 'http://127.0.0.1:5500/callback')
 
-
-
-
-UID = 'u-s4t2ud-a05788a6625086387900c9b247f537cf8039976475a37852d1aeaa4f164704b0'
-SECRET = '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'
-REDIRECT_URI = 'http://127.0.0.1:5500/callback'
-
-JWT_SECRET_KEY="yichiba94@"
+JWT_SECRET_KEY = os.getenv('JWT_SECRET_KEY')
 
 AUTH_USER_MODEL = 'accounts.CustomUser'
 
@@ -71,12 +70,7 @@ INSTALLED_APPS = [
 ]
 
 
-# Configure REST Framework to use JWTAuthentication 
-REST_FRAMEWORK = {
-    # 'DEFAULT_AUTHENTICATION_CLASSES': (
-        # 'rest_framework_simplejwt.authentication.JWTAuthentication',
-    # ),
-}
+
 
 MIDDLEWARE = [
     'corsheaders.middleware.CorsMiddleware',  # Keep this first

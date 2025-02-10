@@ -4,7 +4,7 @@ from rest_framework.response import Response
 from rest_framework import status
 from django.contrib.auth import authenticate, logout
 from django.conf import settings
-from django.shortcuts import redirect, render
+from django.shortcuts import redirect
 from rest_framework.parsers import MultiPartParser, FormParser
 from rest_framework.decorators import api_view
 import pyotp
@@ -66,9 +66,6 @@ def get_friends(request):
     print("from get_friends")
     active_friends = []
     friend_requests = []
-    # active_friends = models.FriendShip.get_friends(request.user)
-    # friend_requests = models.FriendShip.get_friend_requests(request.user)
-    # return Response(f"friends:{active_friends} ..."f"     friends_request:{friend_requests}",status=200)
     user = request.user
     try:
         print("from frie friendd dosnot exist ")
@@ -136,7 +133,6 @@ def accept_friend_request(request, username):
 
 @api_view(["GET"])
 def get_all_users(request):
-    # Get all users, excluding the 'photo' field
     users = models.CustomUser.objects.values(
         'id', 'username', 'email', 'first_name', 'last_name', 'date_joined', 'is_active'
     )
@@ -402,11 +398,8 @@ class generate_OTP(APIView):
         return base64.b64encode(buffer.getvalue()).decode("utf-8")
     
     def get(self, request):
-        print("from generate_otp")
         user = self.get_user_from_request(request)
-        print("user = ",user)
         if user.auth_2fa:
-            print("user.auth_2fa = ",user.auth_2fa)
             return Response({'success': True, "is2FAEnabled": user.auth_2fa}, status=200)
         user.mfa_secret = pyotp.random_base32()
         user.save()
@@ -430,32 +423,25 @@ class generate_OTP(APIView):
         if not user:
             return Response({"message": "Invalid token"}, status=400)
         otp = request.data.get('otp')
-        print("aaaaaaaaaa   otp = ",otp)
         if otp:
             # Verify the OTP
-            print("verifying otp")
             totp = pyotp.TOTP(user.mfa_secret)
             if totp.verify(otp):
                     
-                print("otp verified")
                 if  user.auth_2fa :
-                    print(" 2fa token = ",token)
                     if request.is_authenticated:
                         user.auth_2fa = False
                         user.save()
-                        print("responsssssssse = ")
                         return Response({'succes':'true',"message": "2FA disabled"}, status=200)
                     user.online = True
                     response=remote_login.login(request,user)
                     user.save()
-                    print("response = ",response.data)
                     return response
                 else:
                     user.auth_2fa = True
                     user.save()
                     return Response({'success':'true',"message": "2FA enabled"}, status=200)
             else:
-                print("Invalid OTP Ressssspomnse")
                 return Response({ "message": "Invalid OTP"}, status=200)
         else:
             return Response({"message": "OTP is required"}, status=200)

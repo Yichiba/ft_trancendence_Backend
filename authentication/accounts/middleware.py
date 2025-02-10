@@ -41,7 +41,6 @@ def not_authenticated(view_func):
         if args:
             request = args[0]
         if request.is_authenticated :
-            print("you are already logged in !!!'")
             messages.info(request,'you are already logged in !!!')
             return redirect("home")
         return view_func(request, *args, **kwargs)
